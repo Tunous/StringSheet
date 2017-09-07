@@ -1,6 +1,7 @@
 import unittest
 
 from stringsheet.parser import parse_resources
+from stringsheet.parser import create_spreadsheet_values
 
 
 class ResourcesParseTestCase(unittest.TestCase):

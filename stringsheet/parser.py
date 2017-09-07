@@ -116,3 +116,23 @@ def parse_resources(directory):
             strings[language] = language_strings
 
     return strings
+
+
+def create_spreadsheet_values(strings):
+    """Creates strings array that can be used to execute API calls."""
+    languages = sorted([it for it in strings.keys() if it != 'default'])
+    column_names = ['id', 'comment', 'default'] + languages
+    result = [column_names]
+
+    default_strings = strings['default']
+    for string_id in sorted(default_strings):
+        column = [string_id, '', default_strings[string_id]]
+        for language in languages:
+            language_strings = strings[language]
+            if string_id in language_strings:
+                column.append(language_strings[string_id])
+            else:
+                column.append('')
+        result.append(column)
+
+    return result

@@ -10,6 +10,7 @@ from oauth2client import tools
 from oauth2client.file import Storage
 
 from stringsheet.parser import parse_resources
+from stringsheet.parser import create_spreadsheet_values
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
@@ -138,26 +139,6 @@ def write_strings_directory(strings_by_language):
         make_dir('output/values-' + language)
         write_strings_file(language, strings)
     pass
-
-
-def create_spreadsheet_values(strings):
-    """Creates strings array that can be used to execute API calls."""
-    languages = sorted([it for it in strings.keys() if it != 'default'])
-    column_names = ['id', 'comment', 'default'] + languages
-    result = [column_names]
-
-    default_strings = strings['default']
-    for string_id in sorted(default_strings):
-        column = [string_id, '', default_strings[string_id]]
-        for language in languages:
-            language_strings = strings[language]
-            if string_id in language_strings:
-                column.append(language_strings[string_id])
-            else:
-                column.append('')
-        result.append(column)
-
-    return result
 
 
 def parse_and_upload_strings(service, project_title, spreadsheet_id=''):
