@@ -75,12 +75,12 @@ def __is_language_valid(language):
         # Special case for identifying strings in primary language
         return True
 
-    # Language code might contain a separator
-    language, sep, tail = language.partition('-r')
+    # Language code might contain a country separator
+    language, sep, country = language.partition('-r')
 
-    if sep and not tail:
-        # If there was a separator there also must be a tail.
-        # This gets rid of invalid cases like: "zh-"
+    if sep and (not country or len(country) != 2):
+        # If there was a separator there also must be a country with a length
+        # of 2 letters.
         return False
 
     # All language codes must be 2 letters long
