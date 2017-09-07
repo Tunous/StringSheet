@@ -1,6 +1,6 @@
 import unittest
 
-from parser import parse_resources
+from stringsheet.parser import parse_resources
 
 
 class ResourcesParseTestCase(unittest.TestCase):

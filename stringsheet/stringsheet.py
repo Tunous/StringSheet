@@ -9,7 +9,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-from parser import parse_directory
+from stringsheet.parser import parse_resources
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
@@ -175,7 +175,7 @@ def parse_and_upload_strings(service, project_title, spreadsheet_id=''):
         spreadsheet_name = project_title + ' Translation'
         spreadsheet_id = create_spreadsheet(service, spreadsheet_name)
 
-    strings = parse_resources()
+    strings = parse_resources('res')
     values = create_spreadsheet_values(strings)
 
     value_range_body = {'values': values}
