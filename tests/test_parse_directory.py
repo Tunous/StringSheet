@@ -21,5 +21,15 @@ class ParseNonExistingDirectoryTestCase(unittest.TestCase):
             parse_directory('test-resources/non_existing')
 
 
+class ParseDirectoryWithNonTranslatableFileTestCase(unittest.TestCase):
+    """Test that the parser doesn't parse strings from "donottranslate.xml" files."""
+
+    def setUp(self):
+        self.strings = parse_directory('test-resources/strings_non_translatable_file')
+
+    def test_doesnt_find_string_in_non_translatable_file(self):
+        self.assertNotIn('non_translatable', self.strings)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -140,32 +140,6 @@ def write_strings_directory(strings_by_language):
     pass
 
 
-def parse_resources():
-    """Finds and parses all strings files located under resources directory.
-
-    Returns:
-        dict, dictionary of strings mapped by language and then by string_id.
-    """
-    strings = {}
-    for directory in os.listdir('res'):
-        if not directory.startswith('values'):
-            continue
-
-        if directory == 'values':
-            strings["default"] = parse_directory(directory)
-            continue
-
-        name_split = directory.split('-', 1)
-        if len(name_split) == 2:
-            language = name_split[1]
-            if language.find('-') >= 0 or len(language) == 2:
-                language_strings = parse_directory(directory)
-                if language_strings:
-                    strings[language] = language_strings
-
-    return strings
-
-
 def create_spreadsheet_values(strings):
     """Creates strings array that can be used to execute API calls."""
     languages = sorted([it for it in strings.keys() if it != 'default'])
