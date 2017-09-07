@@ -9,6 +9,8 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
+from parser import parse_file
+
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'StringSheets'
@@ -138,26 +140,6 @@ def write_strings_directory(strings_by_language):
     pass
 
 
-def get_strings_from_file(file):
-    tree = etree.parse(file)
-    root = tree.getroot()
-
-    if root.get('translatable', 'true').lower() == 'false':
-        print('Found not translatable file: "' + file + '". Skipping...')
-        return {}
-
-    strings = {}
-    for element in root:
-        if element.tag == 'string':
-            if element.get('translatable', 'true').lower() == 'false':
-                print('Found not translatable string:', element.get('name'))
-            else:
-                strings[element.get('name')] = element.text
-
-    print('Found', len(strings), 'strings in file: "' + file + '"')
-    return strings
-
-
 def parse_directory(directory):
     files = os.listdir('res/' + directory)
     xml_files = [file for file in files if file.endswith('.xml')]
@@ -166,7 +148,7 @@ def parse_directory(directory):
 
     for file in xml_files:
         file_name = 'res/' + directory + '/' + file
-        strings = get_strings_from_file(file_name)
+        strings = parse_file(file_name)
         all_strings.update(strings)
 
     return all_strings

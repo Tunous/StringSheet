@@ -1,13 +1,13 @@
 import unittest
 
-from stringsheet import stringsheet
+from stringsheet.parser import parse_file
 
 
 class ParseBasicStringsTestCase(unittest.TestCase):
     """Tests that the parser can correctly find strings in a XML file."""
 
     def setUp(self):
-        self.strings = stringsheet.get_strings_from_file('test-resources/strings_basic.xml')
+        self.strings = parse_file('test-resources/strings_basic.xml')
 
     def test_finds_all_strings(self):
         self.assertEqual(len(self.strings), 2, 'Found incorrect number of strings')
@@ -28,7 +28,7 @@ class ParseNotTranslatableStringsTestCase(unittest.TestCase):
     """Tests that the parser doesn't find strings set to not translatable."""
 
     def setUp(self):
-        self.strings = stringsheet.get_strings_from_file('test-resources/strings_not_translatable.xml')
+        self.strings = parse_file('test-resources/strings_not_translatable.xml')
 
     def test_finds_all_strings(self):
         self.assertEqual(len(self.strings), 2, 'Found incorrect number of strings')
@@ -45,7 +45,7 @@ class ParseEmptyFileTestCase(unittest.TestCase):
     """Tests that the parser does not create any strings for empty XML files."""
 
     def setUp(self):
-        self.strings = stringsheet.get_strings_from_file('test-resources/strings_empty.xml')
+        self.strings = parse_file('test-resources/strings_empty.xml')
 
     def test_doesnt_find_any_strings(self):
         self.assertEqual(len(self.strings), 0, 'Found strings in empty file')
@@ -55,7 +55,7 @@ class ParseNotTranslatableRootTestCase(unittest.TestCase):
     """Tests that the parser does not find strings in XML file with non-translatable root."""
 
     def setUp(self):
-        self.strings = stringsheet.get_strings_from_file('test-resources/strings_not_translatable_root.xml')
+        self.strings = parse_file('test-resources/strings_not_translatable_root.xml')
 
     def test_doesnt_find_any_strings(self):
         self.assertEqual(len(self.strings), 0, 'Found strings in non-translatable file')
@@ -65,7 +65,7 @@ class ParseInvalidRootTestCase(unittest.TestCase):
     """Tests that the parser does not find in XML files with invalid root tag."""
 
     def setUp(self):
-        self.strings = stringsheet.get_strings_from_file('test-resources/strings_invalid_root_tag.xml')
+        self.strings = parse_file('test-resources/strings_invalid_root_tag.xml')
 
     def test_doesnt_find_any_strings(self):
         self.assertEqual(len(self.strings), 0, 'Found strings in XML file with invalid root tag')
@@ -75,7 +75,7 @@ class ParseUnknownElementsTestCase(unittest.TestCase):
     """Tests that the parser only finds strings using the <string> XML tag."""
 
     def setUp(self):
-        self.strings = stringsheet.get_strings_from_file('test-resources/strings_invalid_element_tag.xml')
+        self.strings = parse_file('test-resources/strings_invalid_element_tag.xml')
 
     def test_doesnt_find_any_strings(self):
         self.assertEqual(len(self.strings), 0, 'Found strings with invalid tags')
