@@ -9,7 +9,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-from parser import parse_file
+from parser import parse_directory
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
@@ -138,20 +138,6 @@ def write_strings_directory(strings_by_language):
         make_dir('output/values-' + language)
         write_strings_file(language, strings)
     pass
-
-
-def parse_directory(directory):
-    files = os.listdir('res/' + directory)
-    xml_files = [file for file in files if file.endswith('.xml')]
-
-    all_strings = {}
-
-    for file in xml_files:
-        file_name = 'res/' + directory + '/' + file
-        strings = parse_file(file_name)
-        all_strings.update(strings)
-
-    return all_strings
 
 
 def parse_resources():

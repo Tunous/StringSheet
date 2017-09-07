@@ -1,3 +1,4 @@
+import os
 from lxml import etree
 
 
@@ -44,3 +45,21 @@ def parse_file(source):
         for element in root
         if __is_valid_string(element)
     }
+
+
+def parse_directory(directory):
+    """Parse all XML files located under the specified ``directory``
+    and return found string as a ``dict``.
+
+    :param directory: the path to directory to parse.
+    :type directory: str
+    :return: A ``dict`` object with all the parsed strings mapped as ``id: value``.
+    """
+    files = os.listdir(directory)
+    xml_files = [file for file in files if file.endswith('.xml')]
+
+    strings = {}
+    for file in xml_files:
+        file_name = directory + '/' + file
+        strings.update(parse_file(file_name))
+    return strings

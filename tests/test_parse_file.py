@@ -81,5 +81,13 @@ class ParseUnknownElementsTestCase(unittest.TestCase):
         self.assertEqual(len(self.strings), 0, 'Found strings with invalid tags')
 
 
+class ParseNonExistingFileTestCase(unittest.TestCase):
+    """Tests that the parser handles non-existing files."""
+
+    def test_crashes(self):
+        with self.assertRaises(OSError):
+            parse_file('test-resources/strings_non_existing.xml')
+
+
 if __name__ == '__main__':
     unittest.main()
