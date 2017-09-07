@@ -1,3 +1,5 @@
 /res/
 /client_secret.json
 /.idea/workspace.xml
+/build/
+*.egg-info
