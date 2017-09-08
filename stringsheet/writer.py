@@ -60,9 +60,11 @@ def write_strings_to_directory(strings_by_language, target_dir):
         if not target_dir.endswith('/'):
             target_dir += '/'
         if language == 'default':
-            values_dir = target_dir + 'values'
-        else:
-            values_dir = target_dir + 'values-' + language
+            # Do not write strings for the default language. These are supposed
+            # to be written manually by developers and they also might contain
+            # comments which are not saved when using this script.
+            continue
+        values_dir = target_dir + 'values-' + language
         __make_dir(values_dir)
 
         write_strings_file(values_dir, strings)
