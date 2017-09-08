@@ -36,16 +36,16 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
     print(result)
 
 
-def download(spreadsheet_id, output_dir='.'):
+def download(spreadsheet_id, target_dir='.'):
     """Parse the spreadsheet with the specified ``spreadsheet_id`` and save
     the result as Android values directories with strings files in the
-    specified ``output_dir``.
+    specified ``target_dir``.
 
-    If no ``output_dir`` is specifies then values directories will be created
+    If no ``target_dir`` is specifies then values directories will be created
     under current working directory.
 
     :param spreadsheet_id: The id of the Google spreadsheet to parse.
-    :param output_dir: A path to the directory where the resulting files should
+    :param target_dir: A path to the directory where the resulting files should
                        be saved. Usually you want to set this to the "res"
                        directory of your Android project.
     :raise ValueError: If ``spreadsheet_id`` is not specified.
@@ -56,4 +56,4 @@ def download(spreadsheet_id, output_dir='.'):
     service = api.get_service()
     result = api.get_cells(service, spreadsheet_id)
     strings_by_language = parser.parse_spreadsheet_result(result)
-    writer.write_strings_to_directory(strings_by_language, output_dir)
+    writer.write_strings_to_directory(strings_by_language, target_dir)

@@ -48,19 +48,21 @@ def __make_dir(path):
             raise
 
 
-def write_strings_to_directory(strings_by_language, output_dir):
+def write_strings_to_directory(strings_by_language, target_dir):
     """
-
     :param strings_by_language:
-    :param output_dir:
-    :type output_dir: str
+    :param target_dir:
+    :type target_dir: str
     :return:
     """
-    __make_dir(output_dir)
+    __make_dir(target_dir)
     for language, strings in strings_by_language.items():
-        if not output_dir.endswith('/'):
-            output_dir += '/'
-        values_dir = output_dir + 'values-' + language
+        if not target_dir.endswith('/'):
+            target_dir += '/'
+        if language == 'default':
+            values_dir = target_dir + 'values'
+        else:
+            values_dir = target_dir + 'values-' + language
         __make_dir(values_dir)
 
         write_strings_file(values_dir, strings)
