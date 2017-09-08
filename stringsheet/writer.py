@@ -19,26 +19,25 @@ def __indent(element, indent_char='\t', level=0):
         element.tail = indent_text
 
 
-def write_strings_file(language, strings):
+def write_strings_file(directory, strings):
     """
-    :param language:
+    :param directory:
     :param strings:
     :type strings: dict
     :return:
     """
     root = etree.Element('resources')
-    for name, value in strings.items():
+    for name, value in sorted(strings.items()):
         if value:
             etree.SubElement(root, 'string', name=name).text = value
 
     __indent(root)
     tree = etree.ElementTree(root)
-    tree.write('output/values-' + language + '/strings.xml',
+    tree.write(directory + '/strings.xml',
                pretty_print=True,
                xml_declaration=True,
                encoding='utf-8',
                with_tail=False)
-    pass
 
 
 def __make_dir(path):
@@ -49,9 +48,19 @@ def __make_dir(path):
             raise
 
 
-def write_strings_directory(strings_by_language):
-    __make_dir('output')
+def write_strings_to_directory(strings_by_language, output_dir):
+    """
+
+    :param strings_by_language:
+    :param output_dir:
+    :type output_dir: str
+    :return:
+    """
+    __make_dir(output_dir)
     for language, strings in strings_by_language.items():
-        __make_dir('output/values-' + language)
-        write_strings_file(language, strings)
-    pass
+        if not output_dir.endswith('/'):
+            output_dir += '/'
+        values_dir = output_dir + 'values-' + language
+        __make_dir(values_dir)
+
+        write_strings_file(values_dir, strings)

@@ -65,9 +65,14 @@ def create_spreadsheet(service, title):
 
 
 def get_cells(service, spreadsheet_id, spreadsheet_range='A:Z'):
-    return service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=spreadsheet_range).execute()
+    return service.spreadsheets().values().get(
+        spreadsheetId=spreadsheet_id,
+        range=spreadsheet_range).execute()
 
 
 def update_cells(service, spreadsheet_id, spreadsheet_range, value_range_body):
-    return service.spreadsheets().values().update(spreadsheetId=spreadsheet_id, range=spreadsheet_range,
-                                                  body=value_range_body, valueInputOption='RAW').execute()
+    return service.spreadsheets().values().update(
+        spreadsheetId=spreadsheet_id,
+        range=spreadsheet_range,
+        body=value_range_body,
+        valueInputOption='RAW').execute()

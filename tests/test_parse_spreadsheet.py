@@ -1,14 +1,14 @@
 import json
 import unittest
 
-from stringsheet.main import parse_sheet
+from stringsheet.parser import parse_spreadsheet_result
 
 
 class SpreadSheetParseTestCase(unittest.TestCase):
     def setUp(self):
         with open('test-resources/output.json') as file:
             output = json.load(file)
-            self.strings_by_language = parse_sheet(output)
+            self.strings_by_language = parse_spreadsheet_result(output)
 
     def test_finds_all_languages(self):
         self.assertEqual(len(self.strings_by_language), 3)

@@ -88,13 +88,13 @@ def __is_language_valid(language):
 
 
 def parse_resources(directory):
-    """Parse all Android string resources located under res directory.
+    """Parse all Android string resources located under the specified
+    ``directory``.
 
-    This function assumes that the passed ``directory`` corresponds to "res"
-    directory of an Android project containing "values" directories with
-    strings for each language.
+    This function assumes that the passed ``directory`` corresponds to the "res"
+    directory of an Android project containing "values" directories with strings
+    for each language.
 
-    :param directory: the path to res directory.
     :type directory: str
     :return: dict, dictionary of strings mapped by language and then by string_id.
     """
@@ -136,3 +136,30 @@ def create_spreadsheet_values(strings):
         result.append(column)
 
     return result
+
+
+def parse_spreadsheet_result(result):
+    cells = result['values']
+    count = len(cells)
+    title_row = cells[0]
+
+    skip_columns = 2
+    num_languages = len(title_row) - skip_columns
+
+    strings_by_language = {}
+
+    for i in range(0, num_languages):
+        language_index = i + skip_columns
+        language = title_row[language_index]
+
+        language_strings = {}
+        for row_num in range(1, count):
+            row = cells[row_num]
+            string_id = row[0]
+            translation = ''
+            if len(row) > language_index:
+                translation = row[language_index]
+            language_strings[string_id] = translation
+        strings_by_language[language] = language_strings
+
+    return strings_by_language

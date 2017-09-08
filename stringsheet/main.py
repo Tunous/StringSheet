@@ -3,68 +3,57 @@ from . import parser
 from . import writer
 
 
-def parse_sheet(result):
-    cells = result['values']
-    count = len(cells)
-    title_row = cells[0]
-
-    skip_columns = 2
-    num_languages = len(title_row) - skip_columns
-
-    strings_by_language = {}
-
-    for i in range(0, num_languages):
-        language_index = i + skip_columns
-        language = title_row[language_index]
-
-        language_strings = {}
-        for row_num in range(1, count):
-            row = cells[row_num]
-            string_id = row[0]
-            translation = ''
-            if len(row) > language_index:
-                translation = row[language_index]
-            language_strings[string_id] = translation
-        strings_by_language[language] = language_strings
-
-    return strings_by_language
-
-
-def parse_spreadsheet(service, spreadsheet_id):
-    result = api.get_cells(service, spreadsheet_id)
-    return parse_sheet(result)
-
-
-def parse_and_upload_strings(service, project_title, spreadsheet_id=''):
+def upload(spreadsheet_id, source_dir='.', project_title=''):
     """Uploads project strings to Google Spreadsheet.
 
-    If spreadsheet_id is empty a new spreadsheet will be created.
+    If ``spreadsheet_id`` is empty a new spreadsheet will be created.
 
-    Args:
-        service: Resource, a resource object with methods for interacting with
-                 Google Spreadsheets API.
-        project_title: string, a name of the project.
-        spreadsheet_id: string, an id of the spreadsheet to update.
+    ``project_title`` is only required when no ``spreadsheet_id`` is specified.
+    It will be then used to give a name to the newly created spreadsheet.
+
+    :param spreadsheet_id: The id of the Google spreadsheet to use.
+    :type spreadsheet_id: str
+    :param source_dir: A path to the directory containing your values
+                       directories with strings files. Usually you want to set
+                       this to the "res" directory of your Android project.
+    :type source_dir: str
+    :param project_title: A name of the project.
+    :type project_title: str
     """
+    service = api.get_service()
+
     if not spreadsheet_id:
+        if not project_title:
+            raise ValueError('project_title must be specified when creating new spreadsheet')
         spreadsheet_name = project_title + ' Translation'
         spreadsheet_id = api.create_spreadsheet(service, spreadsheet_name)
 
-    strings = parser.parse_resources('res')
+    strings = parser.parse_resources(source_dir)
     values = parser.create_spreadsheet_values(strings)
 
     value_range_body = {'values': values}
-
     result = api.update_cells(service, spreadsheet_id, 'A:Z', value_range_body)
     print(result)
 
 
-def upload(spreadsheet_id):
-    service = api.get_service()
-    parse_and_upload_strings(service, 'SwipeNews', spreadsheet_id)
+def download(spreadsheet_id, output_dir='.'):
+    """Parse the spreadsheet with the specified ``spreadsheet_id`` and save
+    the result as Android values directories with strings files in the
+    specified ``output_dir``.
 
+    If no ``output_dir`` is specifies then values directories will be created
+    under current working directory.
 
-def download(spreadsheet_id):
+    :param spreadsheet_id: The id of the Google spreadsheet to parse.
+    :param output_dir: A path to the directory where the resulting files should
+                       be saved. Usually you want to set this to the "res"
+                       directory of your Android project.
+    :raise ValueError: If ``spreadsheet_id`` is not specified.
+    """
+    if not spreadsheet_id:
+        raise ValueError("spreadsheet_id must be specified")
+
     service = api.get_service()
-    strings_by_language = parse_spreadsheet(service, spreadsheet_id)
-    writer.write_strings_directory(strings_by_language)
+    result = api.get_cells(service, spreadsheet_id)
+    strings_by_language = parser.parse_spreadsheet_result(result)
+    writer.write_strings_to_directory(strings_by_language, output_dir)
