@@ -1,26 +1,21 @@
-import errno
-import os
-
-from lxml import etree
-
 from . import api
 from . import parser
+from . import writer
 
 
-def parse_spreadsheet(service, spreadsheet_id):
-    result = api.get_cells(service, spreadsheet_id)
-    print(result)
+def parse_sheet(result):
     cells = result['values']
     count = len(cells)
     title_row = cells[0]
-    num_languages = len(title_row) - 3
+
+    skip_columns = 2
+    num_languages = len(title_row) - skip_columns
 
     strings_by_language = {}
 
     for i in range(0, num_languages):
-        language_index = i + 3
+        language_index = i + skip_columns
         language = title_row[language_index]
-        print('Language:', language)
 
         language_strings = {}
         for row_num in range(1, count):
@@ -35,36 +30,9 @@ def parse_spreadsheet(service, spreadsheet_id):
     return strings_by_language
 
 
-def write_strings_file(language, strings):
-    """
-    :param language:
-    :param strings:
-    :type strings: dict
-    :return:
-    """
-    root = etree.Element('resources')
-    for name, value in strings.items():
-        if value:
-            etree.SubElement(root, 'string', name=name).text = value
-    tree = etree.ElementTree(root)
-    tree.write('output/values-' + language + '/strings.xml', pretty_print=True, xml_declaration=True, encoding='utf-8')
-    pass
-
-
-def make_dir(path):
-    try:
-        os.makedirs(path)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
-
-
-def write_strings_directory(strings_by_language):
-    make_dir('output')
-    for language, strings in strings_by_language.items():
-        make_dir('output/values-' + language)
-        write_strings_file(language, strings)
-    pass
+def parse_spreadsheet(service, spreadsheet_id):
+    result = api.get_cells(service, spreadsheet_id)
+    return parse_sheet(result)
 
 
 def parse_and_upload_strings(service, project_title, spreadsheet_id=''):
@@ -99,4 +67,4 @@ def upload(spreadsheet_id):
 def download(spreadsheet_id):
     service = api.get_service()
     strings_by_language = parse_spreadsheet(service, spreadsheet_id)
-    write_strings_directory(strings_by_language)
+    writer.write_strings_directory(strings_by_language)
