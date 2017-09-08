@@ -18,7 +18,7 @@ def parse_args():
         description='Manage Android translations using Google Spreadsheets',
         prog='stringsheet')
 
-    subparsers = arg_parser.add_subparsers(dest='operation', metavar='<operation>')
+    subparsers = arg_parser.add_subparsers(dest='operation')
     subparsers.required = True
 
     parser_upload = subparsers.add_parser('upload', help='Upload strings files to spreadsheet')

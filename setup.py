@@ -22,5 +22,9 @@ setup(
         'lxml',
         'google-api-python-client'
     ],
-    scripts=['bin/stringsheet-cli.py']
+    entry_points={
+        'console_scripts': [
+            'stringsheet = stringsheet.command_line:main'
+        ]
+    }
 )
