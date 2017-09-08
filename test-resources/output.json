@@ -1,0 +1,27 @@
+{
+  "range": "Translations!A1:Z1000",
+  "majorDimension": "ROWS",
+  "values": [
+    [
+      "id",
+      "comment",
+      "default",
+      "de",
+      "pl"
+    ],
+    [
+      "partial_string",
+      "",
+      "Partial string",
+      "Partial string (de",
+      ""
+    ],
+    [
+      "string",
+      "",
+      "String",
+      "String (de)",
+      "String (pl)"
+    ]
+  ]
+}
