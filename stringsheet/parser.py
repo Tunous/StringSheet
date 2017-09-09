@@ -151,12 +151,22 @@ def parse_spreadsheet_result(result):
         for row in cells[1:]:
             column_count = len(row)
             if column_count < 3:
-                # We reached empty row. Actual strings shouldn't be separated
-                # by an empty row so we can safely skip all remaining rows.
+                # Actual strings shouldn't be separated by an empty row.
                 break
 
             translation = row[language_index] if column_count > language_index else ''
             string_id = row[0]
+            default_text = row[2]
+
+            if not string_id or not default_text:
+                # All strings must have id and a default text.
+                break
+
+            if ' ' in string_id:
+                # String ids can't contain whitespace characters.
+                # TODO: Check for more invalid characters
+                break
+
             language_strings[string_id] = translation
 
         strings_by_language[language] = language_strings

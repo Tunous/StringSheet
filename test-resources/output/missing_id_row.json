@@ -1,0 +1,40 @@
+{
+    "range": "Translations!A1:E4",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "id",
+        "comment",
+        "default",
+        "de",
+        "pl"
+      ],
+      [
+        "string",
+        null,
+        "String",
+        "String (de)",
+        "String (pl)"
+      ],
+      [
+        "string_2",
+        null,
+        "String 2",
+        "String 2 (de)",
+        "String 2 (pl)"
+      ],
+      [
+        null,
+        "This row has no id",
+        "Which makes it invalid",
+        "Even though there are enough columns",
+        "That could be translations"
+      ],
+      [
+        "Some non-translation text",
+        "Using more columns",
+        "Just like valid cells",
+        "But it's located under invalid row"
+      ]
+    ]
+  }

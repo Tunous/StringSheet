@@ -11,14 +11,14 @@
     ],
     [
       "partial_string",
-      "",
+      null,
       "Partial string",
       "Partial string (de",
-      ""
+      null
     ],
     [
       "string",
-      "",
+      null,
       "String",
       "String (de)",
       "String (pl)"

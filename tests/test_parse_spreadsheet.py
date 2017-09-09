@@ -4,11 +4,19 @@ import unittest
 from stringsheet.parser import parse_spreadsheet_result
 
 
-class SpreadSheetParseTestCase(unittest.TestCase):
+class BaseSpreadsheetDataTestCase(unittest.TestCase):
+    @property
+    def test_file(self):
+        raise NotImplementedError
+
     def setUp(self):
-        with open('test-resources/output.json') as file:
+        with open('test-resources/output/%s' % self.test_file) as file:
             output = json.load(file)
             self.strings_by_language = parse_spreadsheet_result(output)
+
+
+class ValidDataTestCase(BaseSpreadsheetDataTestCase):
+    test_file = 'valid.json'
 
     def test_finds_all_languages(self):
         self.assertEqual(len(self.strings_by_language), 3)
@@ -26,11 +34,30 @@ class SpreadSheetParseTestCase(unittest.TestCase):
             self.assertIn('partial_string', strings)
 
 
-class SpreadSheetBlankRowAndTextTestCase(unittest.TestCase):
-    def setUp(self):
-        with open('test-resources/output_with_non_string_rows_1.json') as file:
-            output = json.load(file)
-            self.strings_by_language = parse_spreadsheet_result(output)
+class EmptyRowTestCase(BaseSpreadsheetDataTestCase):
+    test_file = 'empty_row.json'
+
+    def test_finds_correct_number_of_strings(self):
+        for language in ['default', 'de', 'pl']:
+            strings = self.strings_by_language[language]
+            self.assertEqual(len(strings), 2)
+            self.assertIn('string', strings)
+            self.assertIn('string_2', strings)
+
+
+class RowWithMissingIdTestCase(BaseSpreadsheetDataTestCase):
+    test_file = 'missing_id_row.json'
+
+    def test_finds_correct_number_of_strings(self):
+        for language in ['default', 'de', 'pl']:
+            strings = self.strings_by_language[language]
+            self.assertEqual(len(strings), 2)
+            self.assertIn('string', strings)
+            self.assertIn('string_2', strings)
+
+
+class RowWithIncorrectlyNamedIdTestCase(BaseSpreadsheetDataTestCase):
+    test_file = 'incorrectly_named_id.json'
 
     def test_finds_correct_number_of_strings(self):
         for language in ['default', 'de', 'pl']:
