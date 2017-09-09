@@ -67,7 +67,8 @@ def create_spreadsheet(service, title):
 def get_cells(service, spreadsheet_id, spreadsheet_range='A:Z'):
     return service.spreadsheets().values().get(
         spreadsheetId=spreadsheet_id,
-        range=spreadsheet_range).execute()
+        range=spreadsheet_range
+    ).execute()
 
 
 def update_cells(service, spreadsheet_id, spreadsheet_range, value_range_body):
@@ -75,4 +76,30 @@ def update_cells(service, spreadsheet_id, spreadsheet_range, value_range_body):
         spreadsheetId=spreadsheet_id,
         range=spreadsheet_range,
         body=value_range_body,
-        valueInputOption='RAW').execute()
+        valueInputOption='RAW'
+    ).execute()
+
+
+def batch_update(service, spreadsheet_id, requests):
+    return service.spreadsheets().batchUpdate(
+        spreadsheetId=spreadsheet_id,
+        body={"requests": requests}
+    ).execute()
+
+
+def create_protected_range_request(sheet_id, start_row_index, end_row_index, start_column_index, end_column_index,
+                                   description):
+    return {
+        'addProtectedRange': {
+            'protectedRange': {
+                'range': {
+                    'sheetId': sheet_id,
+                    'startRowIndex': start_row_index,
+                    'endRowIndex': end_row_index,
+                    'startColumnIndex': start_column_index,
+                    'endColumnIndex': end_column_index
+                },
+                'description': description
+            }
+        }
+    }

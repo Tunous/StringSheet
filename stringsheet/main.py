@@ -3,6 +3,17 @@ from . import parser
 from . import writer
 
 
+def _add_protected_ranges(result, service, spreadsheet_id):
+    num_rows = result['updatedRows']
+    num_columns = result['updatedColumns']
+    requests = [
+        api.create_protected_range_request(0, 0, num_rows, 0, 3, 'Protecting informational columns'),
+        api.create_protected_range_request(0, 0, 1, 3, num_columns, 'Protecting language titles')
+    ]
+    result_protect = api.batch_update(service, spreadsheet_id, requests)
+    print(result_protect)
+
+
 def upload(spreadsheet_id, source_dir='.', project_title=''):
     """Uploads project strings to Google Spreadsheet.
 
@@ -34,6 +45,8 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
     value_range_body = {'values': values}
     result = api.update_cells(service, spreadsheet_id, 'A:Z', value_range_body)
     print(result)
+
+    _add_protected_ranges(result, service, spreadsheet_id)
 
 
 def download(spreadsheet_id, target_dir='.'):
