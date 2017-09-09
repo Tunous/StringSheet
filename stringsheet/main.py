@@ -38,6 +38,9 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
             raise ValueError('project_title must be specified when creating new spreadsheet')
         spreadsheet_name = project_title + ' Translation'
         spreadsheet_id = api.create_spreadsheet(service, spreadsheet_name)
+        add_protected_ranges = True
+    else:
+        add_protected_ranges = False
 
     strings = parser.parse_resources(source_dir)
     values = parser.create_spreadsheet_values(strings)
@@ -46,7 +49,8 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
     result = api.update_cells(service, spreadsheet_id, 'A:Z', value_range_body)
     print(result)
 
-    _add_protected_ranges(result, service, spreadsheet_id)
+    if add_protected_ranges:
+        _add_protected_ranges(result, service, spreadsheet_id)
 
 
 def download(spreadsheet_id, target_dir='.'):
