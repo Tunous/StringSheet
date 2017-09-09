@@ -3,17 +3,6 @@ from . import parser
 from . import writer
 
 
-def _add_protected_ranges(result, service, spreadsheet_id):
-    num_rows = result['updatedRows']
-    num_columns = result['updatedColumns']
-    requests = [
-        api.create_protected_range_request(0, 0, num_rows, 0, 3, 'Protecting informational columns'),
-        api.create_protected_range_request(0, 0, 1, 3, num_columns, 'Protecting language titles')
-    ]
-    result_protect = api.batch_update(service, spreadsheet_id, requests)
-    print(result_protect)
-
-
 def upload(spreadsheet_id, source_dir='.', project_title=''):
     """Uploads project strings to Google Spreadsheet.
 
@@ -38,9 +27,9 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
             raise ValueError('project_title must be specified when creating new spreadsheet')
         spreadsheet_name = project_title + ' Translation'
         spreadsheet_id = api.create_spreadsheet(service, spreadsheet_name)
-        add_protected_ranges = True
+        init_spreadsheet_properties = True
     else:
-        add_protected_ranges = False
+        init_spreadsheet_properties = False
 
     strings = parser.parse_resources(source_dir)
     values = parser.create_spreadsheet_values(strings)
@@ -49,8 +38,16 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
     result = api.update_cells(service, spreadsheet_id, 'A:Z', value_range_body)
     print(result)
 
-    if add_protected_ranges:
-        _add_protected_ranges(result, service, spreadsheet_id)
+    if init_spreadsheet_properties:
+        num_rows = result['updatedRows']
+        num_columns = result['updatedColumns']
+        requests = [
+            api.create_protected_range_request(0, 0, num_rows, 0, 3, 'Protecting informational columns'),
+            api.create_protected_range_request(0, 0, 1, 3, num_columns, 'Protecting language titles'),
+            api.create_frozen_properties_request(0, 1, 3)
+        ]
+        result_protect = api.batch_update(service, spreadsheet_id, requests)
+        print(result_protect)
 
 
 def download(spreadsheet_id, target_dir='.'):

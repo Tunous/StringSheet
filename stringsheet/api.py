@@ -103,3 +103,19 @@ def create_protected_range_request(sheet_id, start_row_index, end_row_index, sta
             }
         }
     }
+
+
+def create_frozen_properties_request(sheet_id, frozen_row_count, frozen_column_count):
+    return {
+        'updateSheetProperties': {
+            'properties': {
+                'sheetId': sheet_id,
+                'gridProperties': {
+                    'frozenRowCount': frozen_row_count,
+                    'frozenColumnCount': frozen_column_count
+                }
+            },
+            'fields': 'gridProperties.frozenRowCount,'
+                      'gridProperties.frozenColumnCount'
+        }
+    }
