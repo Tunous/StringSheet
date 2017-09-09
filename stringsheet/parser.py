@@ -126,13 +126,13 @@ def create_spreadsheet_values(strings):
 
     default_strings = strings['default']
     for string_id in sorted(default_strings):
-        column = [string_id, '', default_strings[string_id]]
+        column = [string_id, None, default_strings[string_id]]
         for language in languages:
             language_strings = strings[language]
             if string_id in language_strings:
                 column.append(language_strings[string_id])
             else:
-                column.append('')
+                column.append(None)
         result.append(column)
 
     return result

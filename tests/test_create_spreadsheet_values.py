@@ -26,16 +26,16 @@ class CreateSpreadsheetValuesTestCase(unittest.TestCase):
     def test_strings_are_valid(self):
         partly_added_string = self.values[1]
         self.assertEqual(partly_added_string[0], 'partly_added')
-        self.assertEqual(partly_added_string[1], '')
+        self.assertEqual(partly_added_string[1], None)
         self.assertEqual(partly_added_string[2], 'Partly added')
         self.assertEqual(partly_added_string[3], 'Partly added (de)')
-        self.assertEqual(partly_added_string[4], '')
-        self.assertEqual(partly_added_string[5], '')
-        self.assertEqual(partly_added_string[6], '')
+        self.assertEqual(partly_added_string[4], None)
+        self.assertEqual(partly_added_string[5], None)
+        self.assertEqual(partly_added_string[6], None)
 
         string = self.values[2]
         self.assertEqual(string[0], 'string')
-        self.assertEqual(string[1], '')
+        self.assertEqual(string[1], None)
         self.assertEqual(string[2], 'String')
         self.assertEqual(string[3], 'String (de)')
         self.assertEqual(string[4], 'String (pl)')
