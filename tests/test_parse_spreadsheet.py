@@ -26,5 +26,19 @@ class SpreadSheetParseTestCase(unittest.TestCase):
             self.assertIn('partial_string', strings)
 
 
+class SpreadSheetBlankRowAndTextTestCase(unittest.TestCase):
+    def setUp(self):
+        with open('test-resources/output_with_non_string_rows_1.json') as file:
+            output = json.load(file)
+            self.strings_by_language = parse_spreadsheet_result(output)
+
+    def test_finds_correct_number_of_strings(self):
+        for language in ['default', 'de', 'pl']:
+            strings = self.strings_by_language[language]
+            self.assertEqual(len(strings), 2)
+            self.assertIn('string', strings)
+            self.assertIn('string_2', strings)
+
+
 if __name__ == '__main__':
     unittest.main()

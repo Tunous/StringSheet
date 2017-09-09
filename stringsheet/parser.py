@@ -140,26 +140,25 @@ def create_spreadsheet_values(strings):
 
 def parse_spreadsheet_result(result):
     cells = result['values']
-    count = len(cells)
     title_row = cells[0]
-
-    skip_columns = 2
-    num_languages = len(title_row) - skip_columns
 
     strings_by_language = {}
 
-    for i in range(0, num_languages):
-        language_index = i + skip_columns
+    for language_index in range(2, len(title_row)):
         language = title_row[language_index]
 
         language_strings = {}
-        for row_num in range(1, count):
-            row = cells[row_num]
+        for row in cells[1:]:
+            column_count = len(row)
+            if column_count < 3:
+                # We reached empty row. Actual strings shouldn't be separated
+                # by an empty row so we can safely skip all remaining rows.
+                break
+
+            translation = row[language_index] if column_count > language_index else ''
             string_id = row[0]
-            translation = ''
-            if len(row) > language_index:
-                translation = row[language_index]
             language_strings[string_id] = translation
+
         strings_by_language[language] = language_strings
 
     return strings_by_language

@@ -1,0 +1,34 @@
+{
+    "range": "Translations!A1:E4",
+    "majorDimension": "ROWS",
+    "values": [
+      [
+        "id",
+        "comment",
+        "default",
+        "de",
+        "pl"
+      ],
+      [
+        "string",
+        "",
+        "String",
+        "String (de)",
+        "String (pl)"
+      ],
+      [
+        "string_2",
+        "",
+        "String 2",
+        "String 2 (de)",
+        "String 2 (pl)"
+      ],
+      [],
+      [
+        "Some non-translation text",
+        "Using more columns",
+        "Just like valid cells",
+        "But it's located under blank row"
+      ]
+    ]
+  }

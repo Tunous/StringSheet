@@ -1,5 +1,5 @@
 {
-  "range": "Translations!A1:Z1000",
+  "range": "Translations!A1:E3",
   "majorDimension": "ROWS",
   "values": [
     [
