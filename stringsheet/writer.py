@@ -4,7 +4,7 @@ import os
 from lxml import etree
 
 
-def __indent(element, indent_char='\t', level=0):
+def _indent(element, indent_char='\t', level=0):
     indent_text = '\n' + level * indent_char
     if len(element):
         if not element.text or not element.text.strip():
@@ -12,7 +12,7 @@ def __indent(element, indent_char='\t', level=0):
         if not element.tail or not element.tail.strip():
             element.tail = indent_text
         for element in element:
-            __indent(element, indent_char, level + 1)
+            _indent(element, indent_char, level + 1)
         if not element.tail or not element.tail.strip():
             element.tail = indent_text
     elif level and (not element.tail or not element.tail.strip()):
@@ -20,18 +20,12 @@ def __indent(element, indent_char='\t', level=0):
 
 
 def write_strings_file(directory, strings):
-    """
-    :param directory:
-    :param strings:
-    :type strings: dict
-    :return:
-    """
     root = etree.Element('resources')
     for name, value in sorted(strings.items()):
         if value:
             etree.SubElement(root, 'string', name=name).text = value
 
-    __indent(root)
+    _indent(root)
     tree = etree.ElementTree(root)
     tree.write(directory + '/strings.xml',
                pretty_print=True,
@@ -40,7 +34,7 @@ def write_strings_file(directory, strings):
                with_tail=False)
 
 
-def __make_dir(path):
+def _make_dir(path):
     try:
         os.makedirs(path)
     except OSError as e:
@@ -49,13 +43,7 @@ def __make_dir(path):
 
 
 def write_strings_to_directory(strings_by_language, target_dir):
-    """
-    :param strings_by_language:
-    :param target_dir:
-    :type target_dir: str
-    :return:
-    """
-    __make_dir(target_dir)
+    _make_dir(target_dir)
     for language, strings in strings_by_language.items():
         if not target_dir.endswith('/'):
             target_dir += '/'
@@ -65,6 +53,6 @@ def write_strings_to_directory(strings_by_language, target_dir):
             # comments which are not saved when using this script.
             continue
         values_dir = target_dir + 'values-' + language
-        __make_dir(values_dir)
+        _make_dir(values_dir)
 
         write_strings_file(values_dir, strings)

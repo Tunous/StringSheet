@@ -7,11 +7,11 @@ from oauth2client.file import Storage
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'StringSheets'
+APPLICATION_NAME = 'StringSheet'
 
 
-def __get_credentials():
-    """Gets valid user credentials from storage.
+def _get_credentials():
+    """Get valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
     the OAuth2 flow is completed to obtain the new credentials.
@@ -23,7 +23,9 @@ def __get_credentials():
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir, 'sheets.googleapis.com-python-quickstart.json')
+    credential_path = os.path.join(
+        credential_dir,
+        'sheets.googleapis.com-python-quickstart.json')
 
     store = Storage(credential_path)
     credentials = store.get()
@@ -36,22 +38,24 @@ def __get_credentials():
 
 
 def get_service():
-    """Constructs a Resource for interacting with Google Spreadsheets API."""
-    credentials = __get_credentials()
+    """Construct a Resource for interacting with Google Spreadsheets API."""
+    credentials = _get_credentials()
     http = credentials.authorize(httplib2.Http())
     discovery_url = 'https://sheets.googleapis.com/$discovery/rest?version=v4'
-    return discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discovery_url)
+    return discovery.build('sheets', 'v4', http=http,
+                           discoveryServiceUrl=discovery_url)
 
 
 def create_spreadsheet(service, title):
-    """Creates a new spreadsheet with the specified title.
+    """Create a new spreadsheet with the specified title.
 
     Args:
-        service: Resource, a resource object with methods for interacting with Google Spreadsheets API.
-        title: string, a title for the spreadsheet to create.
+        service: A resource object with methods for interacting with Google
+            Spreadsheets API.
+        title (str): a title for the spreadsheet to create.
 
     Returns:
-        An id of the newly created spreadsheet.
+        str: An id of the newly created spreadsheet.
     """
     spreadsheet_body = {
         'properties': {
@@ -87,7 +91,8 @@ def batch_update(service, spreadsheet_id, requests):
     ).execute()
 
 
-def create_protected_range_request(sheet_id, start_row_index, end_row_index, start_column_index, end_column_index,
+def create_protected_range_request(sheet_id, start_row_index, end_row_index,
+                                   start_column_index, end_column_index,
                                    description):
     return {
         'addProtectedRange': {
@@ -105,7 +110,8 @@ def create_protected_range_request(sheet_id, start_row_index, end_row_index, sta
     }
 
 
-def create_frozen_properties_request(sheet_id, frozen_row_count, frozen_column_count):
+def create_frozen_properties_request(sheet_id, frozen_row_count,
+                                     frozen_column_count):
     return {
         'updateSheetProperties': {
             'properties': {

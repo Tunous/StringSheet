@@ -3,13 +3,13 @@ import os
 from lxml import etree
 
 
-def __is_root_valid(root):
+def _is_root_valid(root):
     if root.tag != 'resources':
         return False
     return root.get('translatable', 'true').lower() == 'true'
 
 
-def __is_string_valid(element):
+def _is_string_valid(element):
     if element.tag != 'string':
         return False
     if 'name' not in element.attrib:
@@ -18,8 +18,7 @@ def __is_string_valid(element):
 
 
 def parse_file(source):
-    """Parse the specified source and extract all the found strings as
-     a ``dict`` object.
+    """Parse the specified source and extract all found strings as a ``dict``.
 
     Args:
         source: The source object to parse. Can be any of the following:
@@ -30,38 +29,38 @@ def parse_file(source):
             - a URL using the HTTP or FTP protocol
 
     Returns:
-        A ``dict`` object with all the parsed strings mapped as ``id: value``.
-
-        Example:
-             ``{'string_id': 'string_value', 'string_id_2', 'string_value_2', ...}``
-
+        dict: A dictionary with all the parsed strings mapped as 'id': 'text'.
     """
     tree = etree.parse(source)
     root = tree.getroot()
 
-    if not __is_root_valid(root):
+    if not _is_root_valid(root):
         return {}
     return {
         element.get('name'): element.text
         for element in root
-        if __is_string_valid(element)
+        if _is_string_valid(element)
     }
 
 
-def __is_file_valid(file):
+def _is_file_valid(file):
     return file.endswith('.xml') and file != 'donottranslate.xml'
 
 
 def parse_directory(directory):
-    """Parse all XML files located under the specified ``directory``
-    and return found string as a ``dict``.
+    """Parse XML files located under the specified directory as strings dict.
 
-    :param directory: the path to directory to parse.
-    :type directory: str
-    :return: A ``dict`` object with all the parsed strings mapped as ``id: value``.
+    The directory argument usually should point to one of the 'values-lang'
+    directories located under res directory of an Android project.
+
+    Args:
+        directory (str): The path to directory with XML files to parse.
+
+    Returns:
+        dict: A dictionary with all the parsed strings mapped as 'id': 'text'.
     """
     files = os.listdir(directory)
-    xml_files = [file for file in files if __is_file_valid(file)]
+    xml_files = [file for file in files if _is_file_valid(file)]
 
     strings = {}
     for file in xml_files:
@@ -70,7 +69,7 @@ def parse_directory(directory):
     return strings
 
 
-def __is_language_valid(language):
+def _is_language_valid(language):
     if language == 'default':
         # Special case for identifying strings in primary language
         return True
@@ -88,15 +87,18 @@ def __is_language_valid(language):
 
 
 def parse_resources(directory):
-    """Parse all Android string resources located under the specified
-    ``directory``.
+    """Parse all string resources located under the specified `directory``.
 
     This function assumes that the passed ``directory`` corresponds to the "res"
     directory of an Android project containing "values" directories with strings
     for each language.
 
-    :type directory: str
-    :return: dict, dictionary of strings mapped by language and then by string_id.
+    Args:
+        directory (str): The path to res directory of an Android project
+            containing values directories with strings for each language.
+
+    Returns:
+        dict: A dictionary of strings mapped by language and then by string id.
     """
     strings = {}
     for child_dir in os.listdir(directory):
@@ -108,7 +110,7 @@ def parse_resources(directory):
         else:
             _, _, language = child_dir.partition('-')
 
-        if not __is_language_valid(language):
+        if not _is_language_valid(language):
             continue
 
         language_strings = parse_directory(directory + '/' + child_dir)
@@ -119,7 +121,15 @@ def parse_resources(directory):
 
 
 def create_spreadsheet_values(strings):
-    """Creates strings array that can be used to execute API calls."""
+    """Create strings array that can be used to execute API calls.
+
+    Args:
+        strings (dict): A dictionary with strings parsed from Android XML
+            strings files.
+
+    Returns:
+        list: List of spreadsheet rows and columns.
+    """
     languages = sorted([it for it in strings.keys() if it != 'default'])
     column_names = ['id', 'comment', 'default'] + languages
     result = [column_names]
@@ -139,13 +149,21 @@ def create_spreadsheet_values(strings):
 
 
 def parse_spreadsheet_result(result):
+    """Parse the result returned by Google Spreadsheets API call.
+
+    Args:
+        result (dict): The json data returned by Google Spreadsheets API
+
+    Returns:
+        dict: A dictionary of strings mapped by language and then by string id.
+    """
     cells = result['values']
     title_row = cells[0]
 
     strings_by_language = {}
 
-    for language_index in range(2, len(title_row)):
-        language = title_row[language_index]
+    for lang_index in range(2, len(title_row)):
+        language = title_row[lang_index]
 
         language_strings = {}
         for row in cells[1:]:
@@ -154,7 +172,7 @@ def parse_spreadsheet_result(result):
                 # Actual strings shouldn't be separated by an empty row.
                 break
 
-            translation = row[language_index] if column_count > language_index else ''
+            translation = row[lang_index] if column_count > lang_index else ''
             string_id = row[0]
             default_text = row[2]
 

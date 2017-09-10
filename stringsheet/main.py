@@ -11,21 +11,20 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
     ``project_title`` is only required when no ``spreadsheet_id`` is specified.
     It will be then used to give a name to the newly created spreadsheet.
 
-    :param spreadsheet_id: The id of the Google spreadsheet to use.
-    :type spreadsheet_id: str
-    :param source_dir: A path to the directory containing your values
-                       directories with strings files. Usually you want to set
-                       this to the "res" directory of your Android project.
-    :type source_dir: str
-    :param project_title: A name of the project.
-    :type project_title: str
+    Args:
+        spreadsheet_id (str): The id of the Google spreadsheet to use.
+        source_dir (str): A path to the directory containing your values
+            directories with strings files. Usually you want to set this to the
+            res directory of your Android project.
+        project_title (str): A name of the project
     """
     service = api.get_service()
 
     if not spreadsheet_id:
         if not project_title:
-            raise ValueError('project_title must be specified when creating new spreadsheet')
-        spreadsheet_name = project_title + ' Translation'
+            raise ValueError(
+                'project_title must be specified when creating new spreadsheet')
+        spreadsheet_name = project_title + ' (Translations)'
         spreadsheet_id = api.create_spreadsheet(service, spreadsheet_name)
         init_spreadsheet_properties = True
     else:
@@ -42,8 +41,10 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
         num_rows = result['updatedRows']
         num_columns = result['updatedColumns']
         requests = [
-            api.create_protected_range_request(0, 0, num_rows, 0, 3, 'Protecting informational columns'),
-            api.create_protected_range_request(0, 0, 1, 3, num_columns, 'Protecting language titles'),
+            api.create_protected_range_request(
+                0, 0, num_rows, 0, 3, 'Protecting informational columns'),
+            api.create_protected_range_request(
+                0, 0, 1, 3, num_columns, 'Protecting language titles'),
             api.create_frozen_properties_request(0, 1, 3)
         ]
         result_protect = api.batch_update(service, spreadsheet_id, requests)
@@ -51,18 +52,20 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
 
 
 def download(spreadsheet_id, target_dir='.'):
-    """Parse the spreadsheet with the specified ``spreadsheet_id`` and save
+    """Parse Google spreadsheet and save the result as Android strings.
+
+    Parse the spreadsheet with the specified ``spreadsheet_id`` and save
     the result as Android values directories with strings files in the
     specified ``target_dir``.
 
-    If no ``target_dir`` is specifies then values directories will be created
-    under current working directory.
+    Args:
+        spreadsheet_id (str): The id of the Google spreadsheet to parse.
+        target_dir (str): A path to the directory where the resulting files
+            should be saved. Usually you want to set this to the res
+            directory of your Android project.
 
-    :param spreadsheet_id: The id of the Google spreadsheet to parse.
-    :param target_dir: A path to the directory where the resulting files should
-                       be saved. Usually you want to set this to the "res"
-                       directory of your Android project.
-    :raise ValueError: If ``spreadsheet_id`` is not specified.
+    Raises:
+        ValueError: Spreadsheet id was not specified.
     """
     if not spreadsheet_id:
         raise ValueError("spreadsheet_id must be specified")
