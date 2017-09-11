@@ -16,31 +16,38 @@ def parse_args():
         description='Manage Android translations using Google Spreadsheets',
         prog='stringsheet')
 
+    arg_parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='%(prog)s 0.1.0')
+
     subparsers = arg_parser.add_subparsers(dest='operation')
     subparsers.required = True
 
     parser_upload = subparsers.add_parser(
         'upload',
-        help='Upload strings files to spreadsheet')
+        help='Upload Android strings to Google Spreadsheet')
     parser_upload.add_argument(
-        '-i', '--spreadsheet-id', default='',
-        help='Id of the spreadsheet for use')
-    parser_upload.add_argument(
-        '-s', '--source-dir', default='.',
+        'source_dir',
         help='A path to resources directory of Android project')
-    parser_upload.add_argument(
+    group = parser_upload.add_mutually_exclusive_group(required=True)
+
+    group.add_argument(
+        '-i', '--spreadsheet-id',
+        help='Id of the spreadsheet for use')
+    group.add_argument(
         '-p', '--project-title',
-        help="The title of project")
+        help="The title of project for new spreadsheet")
     parser_upload.set_defaults(func=upload)
 
     parser_download = subparsers.add_parser(
         'download',
-        help='Download spreadsheet as strings files')
+        help='Download Google Spreadsheet as strings files')
     parser_download.add_argument(
-        '-i', '--spreadsheet-id', required=True,
-        help='Id of the spreadsheet for use')
+        'spreadsheet_id',
+        help='Id of the spreadsheet to download')
     parser_download.add_argument(
-        '-t', '--target-dir', default='.',
+        'target_dir',
         help='A path to directory where to save downloaded strings')
     parser_download.set_defaults(func=download)
 
