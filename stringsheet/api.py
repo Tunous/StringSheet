@@ -161,7 +161,7 @@ def create_conditional_format_request(sheet_id, start_row, end_row,
     }
 
 
-def create_spreadsheet_body(title, multi_sheet, languages):
+def create_spreadsheet_body(title, multi_sheet, languages, row_count):
     if multi_sheet:
         sheets = [{
             'properties': {
@@ -184,6 +184,7 @@ def create_spreadsheet_body(title, multi_sheet, languages):
                     'title': language,
                     'sheetId': sheet_id,
                     'gridProperties': {
+                        'rowCount': row_count,
                         'columnCount': 4,
                         'frozenRowCount': 1
                     }
@@ -202,6 +203,7 @@ def create_spreadsheet_body(title, multi_sheet, languages):
                 'title': 'Translations',
                 'sheetId': 0,
                 'gridProperties': {
+                    'rowCount': row_count,
                     'frozenRowCount': 1,
                     'frozenColumnCount': 3
                 }

@@ -104,7 +104,8 @@ def _create_spreadsheet(service, project_name, multi_sheet, strings):
     spreadsheet_body = api.create_spreadsheet_body(
         spreadsheet_name,
         multi_sheet,
-        parser.get_languages(strings))
+        parser.get_languages(strings),
+        len(strings['default']) + 1)
     response = api.create_spreadsheet(service, spreadsheet_body)
 
     spreadsheet_id = response['spreadsheetId']
