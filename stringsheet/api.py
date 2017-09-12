@@ -131,6 +131,36 @@ def create_frozen_properties_request(sheet_id, frozen_row_count,
     }
 
 
+def create_conditional_format_request(sheet_id, start_row, end_row,
+                                      start_column, end_column):
+    return {
+        'addConditionalFormatRule': {
+            'rule': {
+                'ranges': [{
+                    'sheetId': sheet_id,
+                    'startRowIndex': start_row,
+                    'endRowIndex': end_row,
+                    'startColumnIndex': start_column,
+                    'endColumnIndex': end_column
+                }],
+                'booleanRule': {
+                    'condition': {
+                        'type': 'BLANK'
+                    },
+                    'format': {
+                        'backgroundColor': {
+                            'red': 244/255,
+                            'green': 199/255,
+                            'blue': 195/255,
+                            'alpha': 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 def create_spreadsheet_body(title, multi_sheet, languages):
     if multi_sheet:
         sheets = [{

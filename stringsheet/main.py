@@ -151,20 +151,24 @@ def _download_strings(service, spreadsheet_id):
     return strings_by_language
 
 
-def _create_protected_ranges(service, spreadsheet_id, multi_sheet, strings):
-    print(':: Creating protected ranges...')
+def _create_formatting_rules(service, spreadsheet_id, multi_sheet, strings):
+    print(':: Creating formatting rules...')
     languages = parser.get_languages(strings)
     num_languages = len(languages)
     num_columns = num_languages + 3
     num_rows = len(strings['default']) + 1
     num_sheets = num_languages + 2 if multi_sheet else 1
 
+    start_index = 1 if multi_sheet else 0
+
     requests = []
-    for i in range(num_sheets):
+    for i in range(start_index, num_sheets):
         requests.append(api.create_protected_range_request(
             i, 0, num_rows, 0, 3, 'Protecting informational columns'))
         requests.append(api.create_protected_range_request(
             i, 0, 1, 3, num_columns, 'Protecting language titles'))
+        requests.append(api.create_conditional_format_request(
+            i, 1, num_rows, 3, num_columns))
 
     api.batch_update(service, spreadsheet_id, requests)
 
@@ -185,7 +189,7 @@ def create(project_name, source_dir='.', multi_sheet=False):
     spreadsheet_id = _create_spreadsheet(service, project_name, multi_sheet,
                                          strings)
     _upload(service, spreadsheet_id, strings)
-    _create_protected_ranges(service, spreadsheet_id, multi_sheet, strings)
+    _create_formatting_rules(service, spreadsheet_id, multi_sheet, strings)
     print()
     print('Success')
 
