@@ -3,8 +3,12 @@ import argparse
 import stringsheet.main as ss
 
 
+def create(args):
+    ss.create(args.project_name, args.source_dir)
+
+
 def upload(args):
-    ss.upload(args.spreadsheet_id, args.source_dir, args.project_title)
+    ss.upload(args.spreadsheet_id, args.source_dir)
 
 
 def download(args):
@@ -24,20 +28,26 @@ def parse_args():
     subparsers = arg_parser.add_subparsers(dest='operation')
     subparsers.required = True
 
+    parser_create = subparsers.add_parser(
+        'create',
+        help='Create new Google Spreadsheet for managing Android strings')
+    parser_create.add_argument(
+        'project_name',
+        help='The name of the project')
+    parser_create.add_argument(
+        'source_dir',
+        help='A path to resources directory of Android project')
+    parser_create.set_defaults(func=create)
+
     parser_upload = subparsers.add_parser(
         'upload',
         help='Upload Android strings to Google Spreadsheet')
     parser_upload.add_argument(
+        'spreadsheet_id',
+        help='Id of the spreadsheet to upload to')
+    parser_upload.add_argument(
         'source_dir',
         help='A path to resources directory of Android project')
-    group = parser_upload.add_mutually_exclusive_group(required=True)
-
-    group.add_argument(
-        '-i', '--spreadsheet-id',
-        help='Id of the spreadsheet for use')
-    group.add_argument(
-        '-p', '--project-title',
-        help="The title of project for new spreadsheet")
     parser_upload.set_defaults(func=upload)
 
     parser_download = subparsers.add_parser(

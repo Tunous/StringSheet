@@ -3,7 +3,36 @@ from . import parser
 from . import writer
 
 
-def upload(spreadsheet_id, source_dir='.', project_title=''):
+def create(project_name, source_dir='.'):
+    """Create new Google Spreadsheet for managing translations.
+
+    Args:
+        project_name (str): The name of your Android project. This will be used
+            to name the spreadsheet.
+        source_dir (str): A path to the resources directory of your Android
+            project.
+    """
+    service = api.get_service()
+
+    spreadsheet_name = project_name + ' (Translations)'
+    spreadsheet_id = api.create_spreadsheet(service, spreadsheet_name)
+
+    result = upload(spreadsheet_id, source_dir)
+
+    num_rows = result['updatedRows']
+    num_columns = result['updatedColumns']
+    requests = [
+        api.create_protected_range_request(
+            0, 0, num_rows, 0, 3, 'Protecting informational columns'),
+        api.create_protected_range_request(
+            0, 0, 1, 3, num_columns, 'Protecting language titles'),
+        api.create_frozen_properties_request(0, 1, 3)
+    ]
+    result_protect = api.batch_update(service, spreadsheet_id, requests)
+    print(result_protect)
+
+
+def upload(spreadsheet_id, source_dir='.'):
     """Uploads project strings to Google Spreadsheet.
 
     If ``spreadsheet_id`` is empty a new spreadsheet will be created.
@@ -12,23 +41,11 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
     It will be then used to give a name to the newly created spreadsheet.
 
     Args:
-        spreadsheet_id (str): The id of the Google spreadsheet to use.
-        source_dir (str): A path to the directory containing your values
-            directories with strings files. Usually you want to set this to the
-            res directory of your Android project.
-        project_title (str): A name of the project
+        spreadsheet_id (str): The id of the Google Spreadsheet to use.
+        source_dir (str): A path to the resources directory of your Android
+            project.
     """
     service = api.get_service()
-
-    if not spreadsheet_id:
-        if not project_title:
-            raise ValueError(
-                'project_title must be specified when creating new spreadsheet')
-        spreadsheet_name = project_title + ' (Translations)'
-        spreadsheet_id = api.create_spreadsheet(service, spreadsheet_name)
-        init_spreadsheet_properties = True
-    else:
-        init_spreadsheet_properties = False
 
     strings = parser.parse_resources(source_dir)
     values = parser.create_spreadsheet_values(strings)
@@ -36,19 +53,7 @@ def upload(spreadsheet_id, source_dir='.', project_title=''):
     value_range_body = {'values': values}
     result = api.update_cells(service, spreadsheet_id, 'A:Z', value_range_body)
     print(result)
-
-    if init_spreadsheet_properties:
-        num_rows = result['updatedRows']
-        num_columns = result['updatedColumns']
-        requests = [
-            api.create_protected_range_request(
-                0, 0, num_rows, 0, 3, 'Protecting informational columns'),
-            api.create_protected_range_request(
-                0, 0, 1, 3, num_columns, 'Protecting language titles'),
-            api.create_frozen_properties_request(0, 1, 3)
-        ]
-        result_protect = api.batch_update(service, spreadsheet_id, requests)
-        print(result_protect)
+    return result
 
 
 def download(spreadsheet_id, target_dir='.'):
