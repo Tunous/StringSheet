@@ -213,7 +213,10 @@ def create_spreadsheet_body(title, multi_sheet, languages):
         }]
     return {
         'properties': {
-            'title': title
+            'title': title,
+            'defaultFormat': {
+                'wrapStrategy': 'WRAP'
+            }
         },
         'sheets': sheets
     }
