@@ -69,7 +69,7 @@ def parse_directory(directory):
     return strings
 
 
-def _is_language_valid(language):
+def is_language_valid(language):
     if language == 'default':
         # Special case for identifying strings in primary language
         return True
@@ -110,7 +110,7 @@ def parse_resources(directory):
         else:
             _, _, language = child_dir.partition('-')
 
-        if not _is_language_valid(language):
+        if not is_language_valid(language):
             continue
 
         language_strings = parse_directory(directory + '/' + child_dir)
@@ -125,17 +125,21 @@ def get_languages(strings):
 
 
 def create_language_sheet_values(strings, language):
-    column_names = ['id', 'comment', 'default', language]
-    result = [column_names]
+    is_template = language == 'Template'
+    title = language if not is_template else 'language-id'
+    result = [['id', 'comment', 'default', title]]
 
     default_strings = strings['default']
     for string_id in sorted(default_strings):
         row = [string_id, None, default_strings[string_id]]
-        language_strings = strings[language]
-        if string_id in language_strings:
-            row.append(language_strings[string_id])
-        else:
-            row.append(None)
+
+        if not is_template:
+            language_strings = strings[language]
+            if string_id in language_strings:
+                row.append(language_strings[string_id])
+            else:
+                row.append(None)
+
         result.append(row)
 
     return result

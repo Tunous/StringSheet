@@ -7,12 +7,15 @@ def _create_spreadsheet_body(title, multi_sheet, languages):
     if multi_sheet:
         sheets = [{
             'properties': {
-                'title': 'Overview',
-                'index': 0,
+                'title': 'Overview'
             },
         }]
 
         column_metadata = [{'pixelSize': 250} for _ in range(4)]
+
+        # Add template entry to allow for easy addition of new languages
+        # by translators
+        languages.insert(0, 'Template')
 
         for language in languages:
             sheets.append({
@@ -83,7 +86,7 @@ def create(project_name, source_dir='.', multi_sheet=False):
     spreadsheet_id = response['spreadsheetId']
     print(' > Created new spreadsheet with id:', spreadsheet_id)
 
-    response = _upload(service, spreadsheet_id, strings, multi_sheet)
+    response = _upload(service, spreadsheet_id, strings)
 
     # TODO: Fix
     # num_rows = result['updatedRows']
@@ -99,20 +102,32 @@ def create(project_name, source_dir='.', multi_sheet=False):
     # print(result_protect)
 
 
-def _upload(service, spreadsheet_id, strings, multi_sheet):
+def _upload(service, spreadsheet_id, strings):
     print('Uploading strings...')
 
     data = []
     requests = []
 
-    if multi_sheet:
-        free_sheet_id, language_sheets = _get_sheets(service, spreadsheet_id)
+    free_sheet_id, sheet_id_by_title = _get_sheets(service, spreadsheet_id)
+    languages = parser.get_languages(strings)
 
-        for language in parser.get_languages(strings):
+    num_valid = sum(1 for language in sheet_id_by_title.keys()
+                    if parser.is_language_valid(language))
+    has_template = 'Template' in sheet_id_by_title
+
+    if num_valid == 0 and not has_template:
+        values = parser.create_spreadsheet_values(strings)
+        data.append({
+            'range': 'A:Z',
+            'values': values
+        })
+    else:
+        languages.insert(0, 'Template')
+        for language in languages:
             values = parser.create_language_sheet_values(strings, language)
             data.append(api.create_value_range(language, values))
 
-            if language not in language_sheets:
+            if language not in sheet_id_by_title:
                 requests.append(api.create_add_sheet_request(
                     free_sheet_id, language
                 ))
@@ -120,12 +135,6 @@ def _upload(service, spreadsheet_id, strings, multi_sheet):
                     free_sheet_id, 1, 0
                 ))
                 free_sheet_id += 1
-    else:
-        values = parser.create_spreadsheet_values(strings)
-        data.append({
-            'range': 'A:Z',
-            'values': values
-        })
 
     if requests:
         api.batch_update(service, spreadsheet_id, requests)
@@ -148,18 +157,18 @@ def _upload(service, spreadsheet_id, strings, multi_sheet):
 
 def _get_sheets(service, spreadsheet_id):
     response = api.get_spreadsheet(service, spreadsheet_id)
-    language_sheets = {}
+    sheet_id_by_title = {}
     free_sheet_id = 1
     for sheet in response['sheets']:
         properties = sheet['properties']
         sheet_id = properties['sheetId']
         title = properties['title']
-        language_sheets[title] = sheet_id
+        sheet_id_by_title[title] = sheet_id
         free_sheet_id = max(free_sheet_id, sheet_id + 1)
-    return free_sheet_id, language_sheets
+    return free_sheet_id, sheet_id_by_title
 
 
-def upload(spreadsheet_id, source_dir='.', multi_sheet=False):
+def upload(spreadsheet_id, source_dir='.'):
     """Uploads project strings to Google Spreadsheet.
 
     If ``spreadsheet_id`` is empty a new spreadsheet will be created.
@@ -171,20 +180,19 @@ def upload(spreadsheet_id, source_dir='.', multi_sheet=False):
         spreadsheet_id (str): The id of the Google Spreadsheet to use.
         source_dir (str): A path to the resources directory of your Android
             project.
-        multi_sheet (bool): Upload each language to a separate sheet
-            (in the same file)
     """
     service = api.get_service()
     strings = parser.parse_resources(source_dir)
-    _upload(service, spreadsheet_id, strings, multi_sheet)
+    _upload(service, spreadsheet_id, strings)
 
 
 def _get_sheet_ranges(service, spreadsheet_id):
     spreadsheet = api.get_spreadsheet(service, spreadsheet_id)
     ranges = []
     for sheet in spreadsheet['sheets']:
-        cell_range = "'%s'" % sheet['properties']['title']
-        ranges.append(cell_range)
+        title = sheet['properties']['title']
+        if parser.is_language_valid(title):
+            ranges.append("'%s'" % title)
     return ranges
 
 
