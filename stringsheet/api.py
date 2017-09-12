@@ -129,3 +129,56 @@ def create_frozen_properties_request(sheet_id, frozen_row_count,
                       'gridProperties.frozenColumnCount'
         }
     }
+
+
+def create_spreadsheet_body(title, multi_sheet, languages):
+    if multi_sheet:
+        sheets = [{
+            'properties': {
+                'title': 'Overview'
+            },
+        }]
+
+        column_metadata = [{'pixelSize': 250} for _ in range(4)]
+
+        # Add template entry to allow for easy addition of new languages
+        # by translators
+        languages.insert(0, 'Template')
+
+        for language in languages:
+            sheets.append({
+                'properties': {
+                    'title': language,
+                    'gridProperties': {
+                        'columnCount': 4,
+                        'frozenRowCount': 1
+                    }
+                },
+                'data': [{
+                    'startColumn': 0,
+                    'columnMetadata': column_metadata
+                }]
+            })
+    else:
+        num_columns = len(languages) + 3
+        column_metadata = [{'pixelSize': 250} for _ in range(num_columns)]
+        sheets = [{
+            'properties': {
+                'title': 'Translations',
+                'index': 0,
+                'gridProperties': {
+                    'frozenRowCount': 1,
+                    'frozenColumnCount': 3
+                }
+            },
+            'data': [{
+                'startColumn': 0,
+                'columnMetadata': column_metadata
+            }]
+        }]
+    return {
+        'properties': {
+            'title': title
+        },
+        'sheets': sheets
+    }
