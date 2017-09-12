@@ -135,7 +135,8 @@ def create_spreadsheet_body(title, multi_sheet, languages):
     if multi_sheet:
         sheets = [{
             'properties': {
-                'title': 'Overview'
+                'title': 'Overview',
+                'sheetId': 0
             },
         }]
 
@@ -145,10 +146,13 @@ def create_spreadsheet_body(title, multi_sheet, languages):
         # by translators
         languages.insert(0, 'Template')
 
+        sheet_id = 1
+
         for language in languages:
             sheets.append({
                 'properties': {
                     'title': language,
+                    'sheetId': sheet_id,
                     'gridProperties': {
                         'columnCount': 4,
                         'frozenRowCount': 1
@@ -159,13 +163,14 @@ def create_spreadsheet_body(title, multi_sheet, languages):
                     'columnMetadata': column_metadata
                 }]
             })
+            sheet_id += 1
     else:
         num_columns = len(languages) + 3
         column_metadata = [{'pixelSize': 250} for _ in range(num_columns)]
         sheets = [{
             'properties': {
                 'title': 'Translations',
-                'index': 0,
+                'sheetId': 0,
                 'gridProperties': {
                     'frozenRowCount': 1,
                     'frozenColumnCount': 3

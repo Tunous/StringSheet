@@ -151,6 +151,24 @@ def _download_strings(service, spreadsheet_id):
     return strings_by_language
 
 
+def _create_protected_ranges(service, spreadsheet_id, multi_sheet, strings):
+    print(':: Creating protected ranges...')
+    languages = parser.get_languages(strings)
+    num_languages = len(languages)
+    num_columns = num_languages + 3
+    num_rows = len(strings['default']) + 1
+    num_sheets = num_languages + 2 if multi_sheet else 1
+
+    requests = []
+    for i in range(num_sheets):
+        requests.append(api.create_protected_range_request(
+            i, 0, num_rows, 0, 3, 'Protecting informational columns'))
+        requests.append(api.create_protected_range_request(
+            i, 0, 1, 3, num_columns, 'Protecting language titles'))
+
+    api.batch_update(service, spreadsheet_id, requests)
+
+
 def create(project_name, source_dir='.', multi_sheet=False):
     """Create new Google Spreadsheet for managing translations.
 
@@ -167,19 +185,9 @@ def create(project_name, source_dir='.', multi_sheet=False):
     spreadsheet_id = _create_spreadsheet(service, project_name, multi_sheet,
                                          strings)
     _upload(service, spreadsheet_id, strings)
-
-    # TODO: Fix
-    # num_rows = result['updatedRows']
-    # num_columns = result['updatedColumns']
-    # requests = [
-    #     api.create_protected_range_request(
-    #         0, 0, num_rows, 0, 3, 'Protecting informational columns'),
-    #     api.create_protected_range_request(
-    #         0, 0, 1, 3, num_columns, 'Protecting language titles'),
-    #     api.create_frozen_properties_request(0, 1, 3)
-    # ]
-    # result_protect = api.batch_update(service, spreadsheet_id, requests)
-    # print(result_protect)
+    _create_protected_ranges(service, spreadsheet_id, multi_sheet, strings)
+    print()
+    print('Success')
 
 
 def upload(spreadsheet_id, source_dir='.'):
@@ -198,6 +206,8 @@ def upload(spreadsheet_id, source_dir='.'):
     service = _authenticate()
     strings = _parse_strings(source_dir)
     _upload(service, spreadsheet_id, strings)
+    print()
+    print('Success')
 
 
 def download(spreadsheet_id, target_dir='.'):
@@ -216,3 +226,5 @@ def download(spreadsheet_id, target_dir='.'):
     service = _authenticate()
     strings_by_language = _download_strings(service, spreadsheet_id)
     _write_strings(strings_by_language, target_dir)
+    print()
+    print('Success')
