@@ -120,6 +120,27 @@ def parse_resources(directory):
     return strings
 
 
+def get_languages(strings):
+    return sorted([it for it in strings.keys() if it != 'default'])
+
+
+def create_language_sheet_values(strings, language):
+    column_names = ['id', 'comment', 'default', language]
+    result = [column_names]
+
+    default_strings = strings['default']
+    for string_id in sorted(default_strings):
+        row = [string_id, None, default_strings[string_id]]
+        language_strings = strings[language]
+        if string_id in language_strings:
+            row.append(language_strings[string_id])
+        else:
+            row.append(None)
+        result.append(row)
+
+    return result
+
+
 def create_spreadsheet_values(strings):
     """Create strings array that can be used to execute API calls.
 
@@ -130,7 +151,7 @@ def create_spreadsheet_values(strings):
     Returns:
         list: List of spreadsheet rows and columns.
     """
-    languages = sorted([it for it in strings.keys() if it != 'default'])
+    languages = get_languages(strings)
     column_names = ['id', 'comment', 'default'] + languages
     result = [column_names]
 
@@ -148,17 +169,16 @@ def create_spreadsheet_values(strings):
     return result
 
 
-def parse_spreadsheet_result(result):
+def parse_spreadsheet_values(values):
     """Parse the result returned by Google Spreadsheets API call.
 
     Args:
-        result (dict): The json data returned by Google Spreadsheets API
+        values (dict): The json values data returned by Google Spreadsheets API.
 
     Returns:
         dict: A dictionary of strings mapped by language and then by string id.
     """
-    cells = result['values']
-    title_row = cells[0]
+    title_row = values[0]
 
     strings_by_language = {}
 
@@ -166,7 +186,7 @@ def parse_spreadsheet_result(result):
         language = title_row[lang_index]
 
         language_strings = {}
-        for row in cells[1:]:
+        for row in values[1:]:
             column_count = len(row)
             if column_count < 3:
                 # Actual strings shouldn't be separated by an empty row.

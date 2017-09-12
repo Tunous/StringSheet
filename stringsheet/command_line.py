@@ -4,7 +4,7 @@ import stringsheet.main as ss
 
 
 def create(args):
-    ss.create(args.project_name, args.source_dir)
+    ss.create(args.project_name, args.source_dir, args.multi_sheet)
 
 
 def upload(args):
@@ -37,6 +37,10 @@ def parse_args():
     parser_create.add_argument(
         'source_dir',
         help='A path to resources directory of Android project')
+    parser_create.add_argument(
+        '-m', '--multi-sheet',
+        action='store_true',
+        help='Upload each language to a separate sheet (in the same file)')
     parser_create.set_defaults(func=create)
 
     parser_upload = subparsers.add_parser(

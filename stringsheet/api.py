@@ -46,41 +46,27 @@ def get_service():
                            discoveryServiceUrl=discovery_url)
 
 
-def create_spreadsheet(service, title):
-    """Create a new spreadsheet with the specified title.
-
-    Args:
-        service: A resource object with methods for interacting with Google
-            Spreadsheets API.
-        title (str): a title for the spreadsheet to create.
-
-    Returns:
-        str: An id of the newly created spreadsheet.
-    """
-    spreadsheet_body = {
-        'properties': {
-            'title': title
-        }
-    }
-    result = service.spreadsheets().create(body=spreadsheet_body).execute()
-    spreadsheet_id = result.get('spreadsheetId')
-    print('Created spreadsheet with id:', spreadsheet_id)
-    return spreadsheet_id
+def create_spreadsheet(service, body):
+    return service.spreadsheets().create(body=body).execute()
 
 
-def get_cells(service, spreadsheet_id, spreadsheet_range='A:Z'):
-    return service.spreadsheets().values().get(
-        spreadsheetId=spreadsheet_id,
-        range=spreadsheet_range
+def get_spreadsheet(service, spreadsheet_id):
+    return service.spreadsheets().get(
+        spreadsheetId=spreadsheet_id
     ).execute()
 
 
-def update_cells(service, spreadsheet_id, spreadsheet_range, value_range_body):
-    return service.spreadsheets().values().update(
+def batch_update_values(service, spreadsheet_id, body):
+    return service.spreadsheets().values().batchUpdate(
         spreadsheetId=spreadsheet_id,
-        range=spreadsheet_range,
-        body=value_range_body,
-        valueInputOption='RAW'
+        body=body
+    ).execute()
+
+
+def batch_get_values(service, spreadsheet_id, ranges):
+    return service.spreadsheets().values().batchGet(
+        spreadsheetId=spreadsheet_id,
+        ranges=ranges
     ).execute()
 
 
@@ -89,6 +75,24 @@ def batch_update(service, spreadsheet_id, requests):
         spreadsheetId=spreadsheet_id,
         body={"requests": requests}
     ).execute()
+
+
+def create_add_sheet_request(sheet_id, title):
+    return {
+        'addSheet': {
+            'properties': {
+                'sheetId': sheet_id,
+                'title': title
+            }
+        }
+    }
+
+
+def create_value_range(language, values):
+    return {
+        'range': language + "!A:Z",
+        'values': values
+    }
 
 
 def create_protected_range_request(sheet_id, start_row_index, end_row_index,

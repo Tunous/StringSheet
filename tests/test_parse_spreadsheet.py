@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from stringsheet.parser import parse_spreadsheet_result
+from stringsheet.parser import parse_spreadsheet_values
 
 
 class BaseSpreadsheetDataTestCase(unittest.TestCase):
@@ -12,7 +12,8 @@ class BaseSpreadsheetDataTestCase(unittest.TestCase):
     def setUp(self):
         with open('test-resources/output/%s' % self.test_file) as file:
             output = json.load(file)
-            self.strings_by_language = parse_spreadsheet_result(output)
+            values = output['values']
+            self.strings_by_language = parse_spreadsheet_values(values)
 
 
 class ValidDataTestCase(BaseSpreadsheetDataTestCase):
