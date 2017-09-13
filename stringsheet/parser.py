@@ -33,12 +33,24 @@ def _is_plural_item_valid(element):
     return 'quantity' in element.attrib
 
 
+def _is_array_valid(element):
+    if element.tag != 'string-array':
+        return False
+    if 'name' not in element.attrib:
+        return False
+    return element.get('translatable', 'true').lower() == 'true'
+
+
 def _map_plurals(element):
     return {
         it.get('quantity'): it.text
         for it in element
         if _is_plural_item_valid(it)
     }
+
+
+def _map_array(element):
+    return [it.text for it in element if it.tag == 'item']
 
 
 def parse_file(source):
@@ -64,6 +76,12 @@ def parse_file(source):
     for element in root:
         if _is_string_valid(element):
             strings[element.get('name')] = element.text
+        elif _is_array_valid(element):
+            array = _map_array(element)
+            name = element.get('name')
+            for index, value in enumerate(array):
+                string_id = '%s[%d]' % (name, index)
+                strings[string_id] = value
         elif _is_plural_valid(element):
             plurals = _map_plurals(element)
             # TODO: What to do if plural has no 'other' quantity?

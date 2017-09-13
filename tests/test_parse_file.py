@@ -119,6 +119,37 @@ class ParseNonExistingFileTestCase(unittest.TestCase):
             parse_file('test-resources/strings_non_existing.xml')
 
 
+class ParseArraysTestCase(BaseParseTestCase):
+    """Test that the parser handles string arrays."""
+
+    test_file = 'test-resources/strings_arrays.xml'
+
+    def test_finds_all_strings(self):
+        self.assertEqual(len(self.strings), 6,
+                         'Found incorrect number of strings')
+
+    def test_created_array_mappings(self):
+        self.assertIn('string[0]', self.strings)
+        self.assertIn('string[1]', self.strings)
+        self.assertIn('string[2]', self.strings)
+
+        self.assertIn('string_2[0]', self.strings)
+        self.assertIn('string_2[1]', self.strings)
+        self.assertIn('string_2[2]', self.strings)
+
+    def test_arrays_have_valid_text(self):
+        self.assertEqual("First", self.strings['string[0]'])
+        self.assertEqual("Second", self.strings['string[1]'])
+        self.assertEqual("Third", self.strings['string[2]'])
+        self.assertEqual("First", self.strings['string_2[0]'])
+        self.assertEqual("Second", self.strings['string_2[1]'])
+        self.assertEqual("Third", self.strings['string_2[2]'])
+
+    def test_output_is_valid(self):
+        self.assertEqual(self.raw_text, get_strings_text(self.strings),
+                         'Result file is different from original')
+
+
 class ParsePluralsTestCase(BaseParseTestCase):
     """Test that the parser handles plural strings."""
 

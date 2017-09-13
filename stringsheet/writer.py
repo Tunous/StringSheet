@@ -22,26 +22,41 @@ def _indent(element, indent_char='\t', level=0):
 
 def builds_strings_tree(strings):
     root = etree.Element('resources')
-    pattern = re.compile('(\w+)({(zero|one|two|few|many|other)\})?')
+    array_pattern = re.compile('^(\w+)\[(\d+)\]')
+    plural_pattern = re.compile('(\w+){(zero|one|two|few|many|other)\}')
     plurals = {}
+    arrays = {}
     for name, value in sorted(strings.items()):
         if not value:
             continue
 
-        match = pattern.match(name)
-        if not match:
+        match = array_pattern.match(name)
+        if match:
+            array_name = match.group(1)
+            index = int(match.group(2))
+            array = arrays.get(array_name, [])
+            array.insert(index, value)
+            arrays[array_name] = array
             continue
 
-        quantity = match.group(3)
-        if quantity:
+        match = plural_pattern.match(name)
+        if match:
             plural_name = match.group(1)
-            if plural_name not in plurals:
-                plurals[plural_name] = {}
-            plurals[plural_name][quantity] = value
+            quantity = match.group(2)
+            plural = plurals.get(plural_name, {})
+            plural[quantity] = value
+            plurals[plural_name] = plural
             continue
 
         etree.SubElement(root, 'string', name=name).text = value
 
+    # Build string arrays
+    for name, item_array in sorted(arrays.items()):
+        string_array = etree.SubElement(root, 'string-array', name=name)
+        for value in item_array:
+            etree.SubElement(string_array, 'item').text = value
+
+    # Build plurals
     for name, items in sorted(plurals.items()):
         plural = etree.SubElement(root, 'plurals', name=name)
         for quantity, value in sorted(items.items()):
