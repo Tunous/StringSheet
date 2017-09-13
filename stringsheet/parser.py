@@ -5,40 +5,36 @@ from lxml import etree
 QUANTITIES = ['zero', 'one', 'two', 'few', 'many', 'other']
 
 
-def _is_root_valid(root):
-    if root.tag != 'resources':
-        return False
-    return root.get('translatable', 'true').lower() == 'true'
+def _is_translatable(element):
+    return element.get('translatable', 'true').lower() == 'true'
+
+
+def _is_root_valid(element):
+    return element.tag == 'resources' and _is_translatable(element)
 
 
 def _is_string_valid(element):
-    if element.tag != 'string':
-        return False
-    if 'name' not in element.attrib:
-        return False
-    return element.get('translatable', 'true').lower() == 'true'
+    return (element.tag == 'string' and
+            'name' in element.attrib and
+            _is_translatable(element) and
+            not element.text.startswith(('@', '?')))
 
 
 def _is_plural_valid(element):
-    if element.tag != 'plurals':
-        return False
-    if 'name' not in element.attrib:
-        return False
-    return element.get('translatable', 'true').lower() == 'true'
+    return (element.tag == 'plurals' and
+            'name' in element.attrib and
+            _is_translatable(element))
 
 
 def _is_plural_item_valid(element):
-    if element.tag != 'item':
-        return False
-    return 'quantity' in element.attrib
+    return (element.tag == 'item' and
+            'quantity' in element.attrib)
 
 
 def _is_array_valid(element):
-    if element.tag != 'string-array':
-        return False
-    if 'name' not in element.attrib:
-        return False
-    return element.get('translatable', 'true').lower() == 'true'
+    return (element.tag == 'string-array' and
+            'name' in element.attrib and
+            _is_translatable(element))
 
 
 def _map_plurals(element):

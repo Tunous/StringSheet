@@ -104,7 +104,7 @@ class ParseInvalidRootTestCase(BaseParseTestCase):
 class ParseUnknownElementsTestCase(BaseParseTestCase):
     """Test that the parser only finds strings using the <string> XML tag."""
 
-    test_file = 'test-resources/strings_invalid_element_tag.xml'
+    test_file = 'test-resources/strings_invalid.xml'
 
     def test_doesnt_find_any_strings(self):
         self.assertEqual(len(self.strings), 0,

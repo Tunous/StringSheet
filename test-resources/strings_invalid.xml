@@ -3,4 +3,6 @@
 	<id name="id" />
 	<dimen name="dimen">12dp</dimen>
 	<color name="color">#FFFFFF</color>
+	<string name="string">@string/other</string>
+	<string name="string">?something</string>
 </resources>
