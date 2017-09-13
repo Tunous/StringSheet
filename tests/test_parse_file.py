@@ -123,9 +123,10 @@ class ParsePluralsTestCase(BaseParseTestCase):
     """Test that the parser handles plural strings."""
 
     test_file = 'test-resources/strings_plurals.xml'
+    output_file = 'test-resources/strings_plurals_output.xml'
 
     def test_finds_all_strings(self):
-        self.assertEqual(len(self.strings), 9,
+        self.assertEqual(len(self.strings), 12,
                          'Found incorrect number of strings')
 
     def test_created_plural_mappings(self):
@@ -138,7 +139,27 @@ class ParsePluralsTestCase(BaseParseTestCase):
 
         self.assertIn('string_2{zero}', self.strings)
         self.assertIn('string_2{one}', self.strings)
+        self.assertIn('string_2{two}', self.strings)
+        self.assertIn('string_2{few}', self.strings)
+        self.assertIn('string_2{many}', self.strings)
         self.assertIn('string_2{other}', self.strings)
+
+    def test_plurals_have_valid_text(self):
+        self.assertEqual('Zero', self.strings['string{zero}'])
+        self.assertEqual('One', self.strings['string{one}'])
+        self.assertEqual('Two', self.strings['string{two}'])
+        self.assertEqual('Few', self.strings['string{few}'])
+        self.assertEqual('Many', self.strings['string{many}'])
+        self.assertEqual('Other', self.strings['string{other}'])
+
+        self.assertEqual('Zero', self.strings['string_2{zero}'])
+        self.assertEqual('One', self.strings['string_2{one}'])
+        self.assertEqual('Other', self.strings['string{other}'])
+
+    def test_missing_quantities_are_created_from_other(self):
+        self.assertEqual('Other', self.strings['string_2{two}'])
+        self.assertEqual('Other', self.strings['string_2{few}'])
+        self.assertEqual('Other', self.strings['string_2{many}'])
 
     def test_output_is_valid(self):
         self.assertEqual(self.raw_text, get_strings_text(self.strings),

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+	<plurals name="string">
+		<item quantity="few">Few</item>
+		<item quantity="many">Many</item>
+		<item quantity="one">One</item>
+		<item quantity="other">Other</item>
+		<item quantity="two">Two</item>
+		<item quantity="zero">Zero</item>
+	</plurals>
+	<plurals name="string_2">
+		<item quantity="few">Other</item>
+		<item quantity="many">Other</item>
+		<item quantity="one">One</item>
+		<item quantity="other">Other</item>
+		<item quantity="two">Other</item>
+		<item quantity="zero">Zero</item>
+	</plurals>
+</resources>

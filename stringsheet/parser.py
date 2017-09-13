@@ -2,6 +2,8 @@ import os
 
 from lxml import etree
 
+QUANTITIES = ['zero', 'one', 'two', 'few', 'many', 'other']
+
 
 def _is_root_valid(root):
     if root.tag != 'resources':
@@ -31,6 +33,14 @@ def _is_plural_item_valid(element):
     return 'quantity' in element.attrib
 
 
+def _map_plurals(element):
+    return {
+        it.get('quantity'): it.text
+        for it in element
+        if _is_plural_item_valid(it)
+    }
+
+
 def parse_file(source):
     """Parse the specified source and extract all found strings as a ``dict``.
 
@@ -55,11 +65,13 @@ def parse_file(source):
         if _is_string_valid(element):
             strings[element.get('name')] = element.text
         elif _is_plural_valid(element):
-            for plural in element:
-                if _is_plural_item_valid(plural):
-                    quantity = plural.get('quantity')
-                    string_id = '%s{%s}' % (element.get('name'), quantity)
-                    strings[string_id] = plural.text
+            plurals = _map_plurals(element)
+            # TODO: What to do if plural has no 'other' quantity?
+            default_value = plurals.get('other', '')
+            name = element.get('name')
+            for quantity in QUANTITIES:
+                string_id = '%s{%s}' % (name, quantity)
+                strings[string_id] = plurals.get(quantity, default_value)
     return strings
 
 
