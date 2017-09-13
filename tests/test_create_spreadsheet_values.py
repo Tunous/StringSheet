@@ -10,7 +10,7 @@ class CreateSpreadsheetValuesTestCase(unittest.TestCase):
         self.values = create_spreadsheet_values(strings)
 
     def test_contains_all_strings_and_title_row(self):
-        self.assertEqual(len(self.values), 3)
+        self.assertEqual(len(self.values), 5)
 
     def test_title_row_is_valid(self):
         title_row = self.values[0]
@@ -24,23 +24,42 @@ class CreateSpreadsheetValuesTestCase(unittest.TestCase):
         self.assertEqual(title_row[6], 'zh-rTW')
 
     def test_strings_are_valid(self):
-        partly_added_string = self.values[1]
+        partly_added_string = self.values[3]
         self.assertEqual(partly_added_string[0], 'partly_added')
-        self.assertEqual(partly_added_string[1], None)
+        self.assertEqual(partly_added_string[1], '')
         self.assertEqual(partly_added_string[2], 'Partly added')
         self.assertEqual(partly_added_string[3], 'Partly added (de)')
-        self.assertEqual(partly_added_string[4], None)
-        self.assertEqual(partly_added_string[5], None)
-        self.assertEqual(partly_added_string[6], None)
+        self.assertEqual(partly_added_string[4], '')
+        self.assertEqual(partly_added_string[5], '')
+        self.assertEqual(partly_added_string[6], '')
 
-        string = self.values[2]
+        string = self.values[4]
         self.assertEqual(string[0], 'string')
-        self.assertEqual(string[1], None)
+        self.assertEqual(string[1], '')
         self.assertEqual(string[2], 'String')
         self.assertEqual(string[3], 'String (de)')
         self.assertEqual(string[4], 'String (pl)')
         self.assertEqual(string[5], 'String (zh-rCN)')
         self.assertEqual(string[6], 'String (zh-rTW)')
+
+    def test_arrays_are_valid(self):
+        array_0 = self.values[1]
+        self.assertEqual(array_0[0], 'array[0]')
+        self.assertEqual(array_0[1], '')
+        self.assertEqual(array_0[2], 'First')
+        self.assertEqual(array_0[3], '')
+        self.assertEqual(array_0[4], '')
+        self.assertEqual(array_0[5], '')
+        self.assertEqual(array_0[6], '')
+
+        array_1 = self.values[2]
+        self.assertEqual(array_1[0], 'array[1]')
+        self.assertEqual(array_1[1], '')
+        self.assertEqual(array_1[2], 'Second')
+        self.assertEqual(array_1[3], '')
+        self.assertEqual(array_1[4], '')
+        self.assertEqual(array_1[5], '')
+        self.assertEqual(array_1[6], '')
 
 
 if __name__ == '__main__':

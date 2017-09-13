@@ -2,4 +2,8 @@
 <resources>
 	<string name="string">String</string>
 	<string name="partly_added">Partly added</string>
+	<string-array name="array">
+		<item>First</item>
+		<item>Second</item>
+	</string-array>
 </resources>

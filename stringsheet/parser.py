@@ -181,15 +181,9 @@ def create_language_sheet_values(strings, language):
 
     default_strings = strings['default']
     for string_id in sorted(default_strings):
-        row = [string_id, None, default_strings[string_id]]
-
+        row = [string_id, '', default_strings[string_id]]
         if not is_template:
-            language_strings = strings[language]
-            if string_id in language_strings:
-                row.append(language_strings[string_id])
-            else:
-                row.append(None)
-
+            row.append(strings[language].get(string_id, ''))
         result.append(row)
 
     return result
@@ -211,14 +205,10 @@ def create_spreadsheet_values(strings):
 
     default_strings = strings['default']
     for string_id in sorted(default_strings):
-        column = [string_id, None, default_strings[string_id]]
+        row = [string_id, '', default_strings[string_id]]
         for language in languages:
-            language_strings = strings[language]
-            if string_id in language_strings:
-                column.append(language_strings[string_id])
-            else:
-                column.append(None)
-        result.append(column)
+            row.append(strings[language].get(string_id, ''))
+        result.append(row)
 
     return result
 
