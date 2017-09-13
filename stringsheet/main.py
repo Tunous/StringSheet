@@ -163,11 +163,9 @@ def _create_formatting_rules(service, spreadsheet_id, multi_sheet, strings):
     start_index = 1 if multi_sheet else 0
 
     requests = []
+    start_row_index = 1 if multi_sheet else 0
     for i in range(start_index, num_sheets):
-        requests.append(api.create_protected_range_request(
-            i, 0, num_rows, 0, 3, 'Protecting informational columns'))
-        requests.append(api.create_protected_range_request(
-            i, 0, 1, 3, num_columns, 'Protecting language titles'))
+        requests.append(api.create_protected_range_request(i, start_row_index))
         requests.append(api.create_conditional_format_request(
             i, 1, num_rows, 3, num_columns))
 

@@ -95,20 +95,23 @@ def create_value_range(language, values):
     }
 
 
-def create_protected_range_request(sheet_id, start_row_index, end_row_index,
-                                   start_column_index, end_column_index,
-                                   description):
+def create_protected_range_request(sheet_id, start_row_index):
     return {
         'addProtectedRange': {
             'protectedRange': {
                 'range': {
+                    'sheetId': sheet_id
+                },
+                'unprotectedRanges': [{
                     'sheetId': sheet_id,
                     'startRowIndex': start_row_index,
-                    'endRowIndex': end_row_index,
-                    'startColumnIndex': start_column_index,
-                    'endColumnIndex': end_column_index
+                    'startColumnIndex': 3,
+                }],
+                'editors': {
+                    # Required otherwise protection doesn't work correctly
+                    'users': []
                 },
-                'description': description
+                'warningOnly': False
             }
         }
     }
