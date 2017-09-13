@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources translatable="false">
-    <string name="string">This string shouldn't be found</string>
+	<string name="string">This string shouldn't be found</string>
 </resources>

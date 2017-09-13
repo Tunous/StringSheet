@@ -17,6 +17,20 @@ def _is_string_valid(element):
     return element.get('translatable', 'true').lower() == 'true'
 
 
+def _is_plural_valid(element):
+    if element.tag != 'plurals':
+        return False
+    if 'name' not in element.attrib:
+        return False
+    return element.get('translatable', 'true').lower() == 'true'
+
+
+def _is_plural_item_valid(element):
+    if element.tag != 'item':
+        return False
+    return 'quantity' in element.attrib
+
+
 def parse_file(source):
     """Parse the specified source and extract all found strings as a ``dict``.
 
@@ -36,11 +50,17 @@ def parse_file(source):
 
     if not _is_root_valid(root):
         return {}
-    return {
-        element.get('name'): element.text
-        for element in root
-        if _is_string_valid(element)
-    }
+    strings = {}
+    for element in root:
+        if _is_string_valid(element):
+            strings[element.get('name')] = element.text
+        elif _is_plural_valid(element):
+            for plural in element:
+                if _is_plural_item_valid(plural):
+                    quantity = plural.get('quantity')
+                    string_id = '%s{%s}' % (element.get('name'), quantity)
+                    strings[string_id] = plural.text
+    return strings
 
 
 def _is_file_valid(file):

@@ -1,5 +1,6 @@
 import errno
 import os
+import re
 
 from lxml import etree
 
@@ -19,14 +20,48 @@ def _indent(element, indent_char='\t', level=0):
         element.tail = indent_text
 
 
-def write_strings_file(directory, strings):
+def builds_strings_tree(strings):
     root = etree.Element('resources')
+    pattern = re.compile('(\w+)({(zero|one|two|few|many|other)\})?')
+    plurals = {}
     for name, value in sorted(strings.items()):
-        if value:
-            etree.SubElement(root, 'string', name=name).text = value
+        if not value:
+            continue
+
+        match = pattern.match(name)
+        if not match:
+            continue
+
+        quantity = match.group(3)
+        if quantity:
+            plural_name = match.group(1)
+            if plural_name not in plurals:
+                plurals[plural_name] = {}
+            plurals[plural_name][quantity] = value
+            continue
+
+        etree.SubElement(root, 'string', name=name).text = value
+
+    for name, items in sorted(plurals.items()):
+        plural = etree.SubElement(root, 'plurals', name=name)
+        for quantity, value in sorted(items.items()):
+            etree.SubElement(plural, 'item', quantity=quantity).text = value
 
     _indent(root)
-    tree = etree.ElementTree(root)
+    return etree.ElementTree(root)
+
+
+def get_strings_text(strings):
+    tree = builds_strings_tree(strings)
+    return etree.tostring(tree,
+                          pretty_print=True,
+                          xml_declaration=True,
+                          encoding='utf-8',
+                          with_tail=False)
+
+
+def write_strings_file(directory, strings):
+    tree = builds_strings_tree(strings)
     tree.write(directory + '/strings.xml',
                pretty_print=True,
                xml_declaration=True,

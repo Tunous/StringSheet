@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <id name="id" />
-    <dimen name="dimen">12dp</dimen>
-    <color name="color">#FFFFFF</color>
+	<id name="id" />
+	<dimen name="dimen">12dp</dimen>
+	<color name="color">#FFFFFF</color>
 </resources>
