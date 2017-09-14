@@ -34,18 +34,20 @@ def _get_credentials():
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(
-        credential_dir,
-        'sheets.googleapis.stringsheet.json'
-    )
+        credential_dir, 'sheets.googleapis.stringsheet.json')
 
     store = Storage(credential_path)
     credentials = store.get() if os.path.isfile(credential_path) else None
 
     if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(
-            CLIENT_SECRET_FILE,
-            SCOPES,
-            redirect_uri=client.OOB_CALLBACK_URN
+        flow = client.OAuth2WebServerFlow(
+            client_id='544612569534-bul8pt6lt594cilmt545rrte934hanuc'
+                      '.apps.googleusercontent.com',
+            client_secret='4uo68aoi6j-YjXrCXqKUsyHi',
+            scope=SCOPES,
+            redirect_uri=client.OOB_CALLBACK_URN,
+            auth_uri='https://accounts.google.com/o/oauth2/auth',
+            token_uri='https://accounts.google.com/o/oauth2/token'
         )
         flow.user_agent = APPLICATION_NAME
         authorize_url = flow.step1_get_authorize_url()
