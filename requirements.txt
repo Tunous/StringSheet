@@ -1,0 +1,4 @@
+httplib2==0.10.3
+setuptools==36.3.0
+lxml==3.8.0
+google_api_python_client==1.6.3
