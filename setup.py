@@ -1,20 +1,24 @@
+import os
+
 from setuptools import setup
 
+about = {}
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'stringsheet', '__init__.py'), 'r') as file:
+    exec(file.read(), about)
 
-def readme():
-    with open('README.rst') as file:
-        return file.read()
-
+with open('README.rst') as file:
+    readme = file.read()
 
 setup(
-    name='StringSheet',
-    version='0.1.0',
-    description='Manage Android translations using Google Spreadsheets',
-    long_description=readme(),
-    author='Łukasz Rutkowski',
-    author_email='lukus178@gmail.com',
-    url='https://github.com/Tunous/StringsSheet',
-    license="MIT",
+    name=about['__title__'],
+    version=about['__version__'],
+    description=about['__description__'],
+    long_description=readme,
+    author=about['__author__'],
+    author_email=about['__author_email__'],
+    url=about['__url__'],
+    license=about['__license__'],
     packages=['stringsheet'],
     install_requires=[
         'httplib2',

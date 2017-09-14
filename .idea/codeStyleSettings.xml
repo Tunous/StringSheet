@@ -3,6 +3,7 @@
   <component name="ProjectCodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
+        <option name="RIGHT_MARGIN" value="80" />
         <JetCodeStyleSettings>
           <option name="PACKAGES_TO_USE_STAR_IMPORTS">
             <value>
