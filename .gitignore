@@ -5,3 +5,5 @@
 *.egg-info
 /dist/
 __pycache__/
+/.tox/
+/.cache/
