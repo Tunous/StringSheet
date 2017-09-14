@@ -1,9 +1,17 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
 	<string name="string">String</string>
-	<string name="partly_added">Partly added</string>
+	<plurals name="plurals">
+		<item quantity="one">One</item>
+		<item quantity="zero">Zero</item>
+		<item quantity="two">Two</item>
+		<item quantity="other">Other</item>
+		<item quantity="few">Few</item>
+		<item quantity="many">Many</item>
+	</plurals>
 	<string-array name="array">
 		<item>First</item>
 		<item>Second</item>
 	</string-array>
+	<string name="partly_added">Partly added</string>
 </resources>

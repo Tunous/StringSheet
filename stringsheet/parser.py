@@ -2,7 +2,8 @@ import os
 
 from lxml import etree
 
-QUANTITIES = ['zero', 'one', 'two', 'few', 'many', 'other']
+from . import comparator
+from . import constants
 
 
 def _is_translatable(element):
@@ -83,7 +84,7 @@ def parse_file(source):
             # TODO: What to do if plural has no 'other' quantity?
             default_value = plurals.get('other', '')
             name = element.get('name')
-            for quantity in QUANTITIES:
+            for quantity in constants.QUANTITIES:
                 string_id = '%s{%s}' % (name, quantity)
                 strings[string_id] = plurals.get(quantity, default_value)
     return strings
@@ -200,7 +201,8 @@ def create_spreadsheet_values(strings):
     result = [column_names]
 
     default_strings = strings['default']
-    for string_id in sorted(default_strings):
+    sorted_strings = sorted(default_strings, key=comparator.string_order)
+    for string_id in sorted_strings:
         row = [string_id, '', default_strings[string_id]]
         for language in languages:
             row.append(strings[language].get(string_id, ''))

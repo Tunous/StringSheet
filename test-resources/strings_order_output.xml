@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+	<string name="a_string">String A</string>
+	<string name="b_string">String B</string>
+	<string-array name="a_array">
+		<item>First A</item>
+		<item>Second A</item>
+	</string-array>
+	<string-array name="b_array">
+		<item>First B</item>
+		<item>Second B</item>
+	</string-array>
+	<plurals name="a_plurals">
+		<item quantity="zero">Zero A</item>
+		<item quantity="one">One A</item>
+		<item quantity="two">Two A</item>
+		<item quantity="few">Few A</item>
+		<item quantity="many">Many A</item>
+		<item quantity="other">Other A</item>
+	</plurals>
+	<plurals name="b_plurals">
+		<item quantity="zero">Zero B</item>
+		<item quantity="one">One B</item>
+		<item quantity="two">Two B</item>
+		<item quantity="few">Few B</item>
+		<item quantity="many">Many B</item>
+		<item quantity="other">Other B</item>
+	</plurals>
+</resources>

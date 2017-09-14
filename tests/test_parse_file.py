@@ -44,7 +44,7 @@ class ParseBasicStringsTestCase(BaseParseTestCase):
 
     def test_output_is_valid(self):
         self.assertEqual(self.raw_text, get_strings_text(self.strings),
-                         'Result file is different from original')
+                         'Result file is different from required')
 
 
 class ParseNotTranslatableStringsTestCase(BaseParseTestCase):
@@ -67,7 +67,7 @@ class ParseNotTranslatableStringsTestCase(BaseParseTestCase):
 
     def test_output_is_valid(self):
         self.assertEqual(self.raw_text, get_strings_text(self.strings),
-                         'Result file is different from original')
+                         'Result file is different from required')
 
 
 class ParseEmptyFileTestCase(BaseParseTestCase):
@@ -147,7 +147,7 @@ class ParseArraysTestCase(BaseParseTestCase):
 
     def test_output_is_valid(self):
         self.assertEqual(self.raw_text, get_strings_text(self.strings),
-                         'Result file is different from original')
+                         'Result file is different from required')
 
 
 class ParsePluralsTestCase(BaseParseTestCase):
@@ -194,7 +194,18 @@ class ParsePluralsTestCase(BaseParseTestCase):
 
     def test_output_is_valid(self):
         self.assertEqual(self.raw_text, get_strings_text(self.strings),
-                         'Result file is different from original')
+                         'Result file is different from required')
+
+
+class ParseOutputTestCase(BaseParseTestCase):
+    """Test that the writer saves strings in order."""
+
+    test_file = 'test-resources/strings_order.xml'
+    output_file = 'test-resources/strings_order_output.xml'
+
+    def test_order_is_valid(self):
+        self.assertEqual(self.raw_text, get_strings_text(self.strings),
+                         'Result file is different from required')
 
 
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ import re
 
 from lxml import etree
 
+from . import comparator
+
 
 def _indent(element, indent_char='\t', level=0):
     indent_text = '\n' + level * indent_char
@@ -59,7 +61,8 @@ def builds_strings_tree(strings):
     # Build plurals
     for name, items in sorted(plurals.items()):
         plural = etree.SubElement(root, 'plurals', name=name)
-        for quantity, value in sorted(items.items()):
+        quantities = sorted(items.items(), key=comparator.quantity_order)
+        for quantity, value in quantities:
             etree.SubElement(plural, 'item', quantity=quantity).text = value
 
     _indent(root)
