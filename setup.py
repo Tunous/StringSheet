@@ -28,7 +28,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'stringsheet = stringsheet.command_line:main'
+            'stringsheet = stringsheet.cli:main'
         ]
     }
 )

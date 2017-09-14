@@ -1,13 +1,23 @@
 import os
+import sys
+import webbrowser
 
 import httplib2
 from apiclient import discovery
-from oauth2client import client, tools
+from oauth2client import client
 from oauth2client.file import Storage
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'StringSheet'
+
+_BROWSER_OPENED_MESSAGE = """
+Your browser has been opened to visit:
+
+    {address}
+"""
+
+_CODE_PROMPT = 'Please authenticate and enter verification code: '
 
 
 def _get_credentials():
@@ -20,20 +30,44 @@ def _get_credentials():
         Credentials, the obtained credential.
     """
     home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    credential_dir = os.path.join(home_dir, '.cache', 'credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(
         credential_dir,
-        'sheets.googleapis.com-python-quickstart.json')
+        'sheets.googleapis.stringsheet.json'
+    )
 
     store = Storage(credential_path)
-    credentials = store.get()
+    credentials = store.get() if os.path.isfile(credential_path) else None
+
     if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow = client.flow_from_clientsecrets(
+            CLIENT_SECRET_FILE,
+            SCOPES,
+            redirect_uri=client.OOB_CALLBACK_URN
+        )
         flow.user_agent = APPLICATION_NAME
-        credentials = tools.run_flow(flow, store)
+        authorize_url = flow.step1_get_authorize_url()
+        webbrowser.open(authorize_url)
+
+        try:
+            print(_BROWSER_OPENED_MESSAGE.format(address=authorize_url))
+            code = input(_CODE_PROMPT).strip()
+        except KeyboardInterrupt:
+            sys.exit('\nAuthentication cancelled.')
+
+        try:
+            credentials = flow.step2_exchange(code)
+        except client.FlowExchangeError as e:
+            sys.exit('Authentication has failed: {0}'.format(e))
+
         print('Storing credentials to ' + credential_path)
+        store.put(credentials)
+        credentials.set_store(store)
+
+        print('Authentication successful.')
+
     return credentials
 
 
@@ -152,9 +186,9 @@ def create_conditional_format_request(sheet_id, start_row, end_row,
                     },
                     'format': {
                         'backgroundColor': {
-                            'red': 244/255,
-                            'green': 199/255,
-                            'blue': 195/255,
+                            'red': 244 / 255,
+                            'green': 199 / 255,
+                            'blue': 195 / 255,
                             'alpha': 1
                         }
                     }
