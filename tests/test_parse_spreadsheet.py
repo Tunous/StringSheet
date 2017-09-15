@@ -10,8 +10,8 @@ class BaseSpreadsheetDataTestCase(unittest.TestCase):
         raise NotImplementedError
 
     def setUp(self):
-        with open('test-resources/output/%s' % self.test_file) as file:
-            output = json.load(file)
+        with open('test-resources/output/%s' % self.test_file) as f:
+            output = json.load(f)
             values = output['values']
             self.strings_by_language = parse_spreadsheet_values(values)
 

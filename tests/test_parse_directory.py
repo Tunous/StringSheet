@@ -20,7 +20,7 @@ class ParseNonExistingDirectoryTestCase(unittest.TestCase):
     """Test that the parser handles non-existing files."""
 
     def test_crashes(self):
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(OSError):
             parse_directory('test-resources/non_existing')
 
 

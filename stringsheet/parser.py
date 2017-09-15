@@ -51,7 +51,7 @@ def parse_file(source, resources):
         latest_comment = ''
 
 
-def _parse_array(element, name: str, comment: str) -> model.StringArray:
+def _parse_array(element, name, comment):
     string_array = model.StringArray(name, comment)
     latest_item_comment = comment
     for item in element:
@@ -66,7 +66,7 @@ def _parse_array(element, name: str, comment: str) -> model.StringArray:
     return string_array
 
 
-def _parse_plural(element, name: str, comment: str) -> model.PluralString:
+def _parse_plural(element, name, comment):
     plural = model.PluralString(name, comment)
     latest_item_comment = comment
     for item in element:
@@ -95,11 +95,11 @@ def _parse_comment(item, latest_comment):
     return item.text.strip() if item.tail.count('\n') <= 1 else latest_comment
 
 
-def _is_file_valid(file):
-    return file.endswith('.xml') and file != 'donottranslate.xml'
+def _is_file_valid(file_name):
+    return file_name.endswith('.xml') and file_name != 'donottranslate.xml'
 
 
-def parse_directory(directory) -> model.Resources:
+def parse_directory(directory):
     """Parse XML files located under the specified directory as strings dict.
 
     The directory argument usually should point to one of the 'values-lang'
@@ -112,11 +112,11 @@ def parse_directory(directory) -> model.Resources:
         model.Resources: A model with parsed resources.
     """
     files = os.listdir(directory)
-    xml_files = [file for file in files if _is_file_valid(file)]
+    xml_files = [file_name for file_name in files if _is_file_valid(file_name)]
 
     resources = model.Resources()
-    for file in xml_files:
-        file_name = directory + '/' + file
+    for file_name in xml_files:
+        file_name = directory + '/' + file_name
         parse_file(file_name, resources)
     return resources
 
@@ -138,7 +138,7 @@ def is_language_valid(language):
     return len(language) == 2
 
 
-def parse_resources(directory) -> model.ResourceContainer:
+def parse_resources(directory):
     """Parse all string resources located under the specified `directory``.
 
     This function assumes that the passed ``directory`` corresponds to the "res"
@@ -150,7 +150,8 @@ def parse_resources(directory) -> model.ResourceContainer:
             containing values directories with strings for each language.
 
     Returns:
-        dict: A dictionary of strings mapped by language and then by string id.
+        model.ResourceContainer: A dictionary of strings mapped by language and
+            then by string id.
     """
     resources = model.ResourceContainer()
     for child_dir in os.listdir(directory):
@@ -172,7 +173,7 @@ def create_language_sheet_values(resources, language):
     return create_spreadsheet_values(resources, [title])
 
 
-def create_spreadsheet_values(resources, languages=None) -> list:
+def create_spreadsheet_values(resources, languages=None):
     """Create rows and columns list that can be used to execute API calls.
 
     Args:

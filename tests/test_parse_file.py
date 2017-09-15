@@ -17,10 +17,10 @@ class BaseParseTestCase(unittest.TestCase):
     def setUp(self):
         self.resources = Resources()
         parse_file(self.test_file, self.resources)
-        with open(self.output_file, mode='rb') as file:
-            self.raw_text = file.read()
+        with open(self.output_file, mode='rb') as f:
+            self.raw_text = f.read()
 
-    def assert_string(self, name: str, text: str, comment: str = ''):
+    def assert_string(self, name, text, comment=''):
         string = self.resources._strings[name]
         self.assertEqual(string.text, text, "String text is invalid")
         self.assertEqual(string.comment, comment, "String comment is invalid")
@@ -121,7 +121,7 @@ class ParseNonExistingFileTestCase(unittest.TestCase):
     """Test that the parser handles non-existing files."""
 
     def test_crashes(self):
-        with self.assertRaises(OSError):
+        with self.assertRaises(IOError):
             parse_file('test-resources/strings_non_existing.xml', Resources())
 
 

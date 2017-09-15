@@ -1,27 +1,26 @@
 from operator import attrgetter
-from typing import List
 
 from . import comparator
 
 
-def _is_translatable(element) -> bool:
+def _is_translatable(element):
     return element.get('translatable', 'true').lower() == 'true'
 
 
-def _is_reference(element) -> bool:
+def _is_reference(element):
     return element.text.startswith(('@', '?'))
 
 
 class String:
     """Model representing <string> tag in Android string resources."""
 
-    def __init__(self, name: str, text: str, comment: str) -> None:
+    def __init__(self, name, text, comment):
         self.text = text
         self.name = name
         self.comment = comment
 
     @staticmethod
-    def is_valid(element) -> bool:
+    def is_valid(element):
         return (element.tag == 'string' and
                 'name' in element.attrib and
                 _is_translatable(element) and
@@ -31,35 +30,35 @@ class String:
 class StringArrayItem:
     """Model representing <item> tag for arrays in Android string resources."""
 
-    def __init__(self, text: str, comment: str) -> None:
+    def __init__(self, text, comment):
         self.text = text
         self.comment = comment
 
     @staticmethod
-    def is_valid(element) -> bool:
+    def is_valid(element):
         return element.tag == 'item' and not _is_reference(element)
 
 
 class StringArray:
     """Model representing <string-array> tag in Android string resources."""
 
-    def __init__(self, name: str, comment: str) -> None:
+    def __init__(self, name, comment):
         self.name = name
         self.comment = comment
         self._items = []
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self._items)
 
-    def __getitem__(self, index: int) -> StringArrayItem:
+    def __getitem__(self, index):
         return self._items[index]
 
-    def add_item(self, text: str, comment: str):
+    def add_item(self, text, comment):
         item = StringArrayItem(text, comment)
         self._items.append(item)
 
     @staticmethod
-    def is_valid(element) -> bool:
+    def is_valid(element):
         return (element.tag == 'string-array' and
                 'name' in element.attrib and
                 _is_translatable(element))
@@ -68,13 +67,13 @@ class StringArray:
 class PluralItem:
     """Model representing <plurals> tag in Android string resources."""
 
-    def __init__(self, quantity: str, text: str, comment: str) -> None:
+    def __init__(self, quantity, text, comment):
         self.quantity = quantity
         self.text = text
         self.comment = comment
 
     @staticmethod
-    def is_valid(element) -> bool:
+    def is_valid(element):
         return (element.tag == 'item' and
                 'quantity' in element.attrib and
                 not _is_reference(element))
@@ -83,30 +82,30 @@ class PluralItem:
 class PluralString:
     """Model representing <item> tag for plurals in Android string resources."""
 
-    def __init__(self, name: str, comment: str) -> None:
+    def __init__(self, name, comment):
         self.name = name
         self.comment = comment
         self._items = {}
 
-    def __getitem__(self, quantity: str) -> PluralItem:
+    def __getitem__(self, quantity):
         return self._items[quantity]
 
-    def __setitem__(self, quantity: str, plural_item: PluralItem) -> None:
+    def __setitem__(self, quantity, plural_item):
         self._items[quantity] = plural_item
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self._items)
 
-    def __contains__(self, quantity) -> bool:
+    def __contains__(self, quantity):
         return quantity in self._items
 
     @property
-    def sorted_items(self) -> List[PluralItem]:
+    def sorted_items(self):
         return sorted(self._items.values(),
                       key=lambda item: comparator.quantity_order(item.quantity))
 
     @staticmethod
-    def is_valid(element) -> bool:
+    def is_valid(element):
         return (element.tag == 'plurals' and
                 'name' in element.attrib and
                 _is_translatable(element))
@@ -130,7 +129,7 @@ class Resources:
         return element.tag == 'resources' and _is_translatable(element)
 
     @property
-    def sorted_strings(self) -> List[String]:
+    def sorted_strings(self):
         """Return a sorted list of strings stored in this model.
 
         Returns:
@@ -139,7 +138,7 @@ class Resources:
         return sorted(self._strings.values(), key=attrgetter('name'))
 
     @property
-    def sorted_arrays(self) -> List[StringArray]:
+    def sorted_arrays(self):
         """Return a sorted list of arrays stored in this model.
 
         Returns:
@@ -149,7 +148,7 @@ class Resources:
         return sorted(self._arrays.values(), key=attrgetter('name'))
 
     @property
-    def sorted_plurals(self) -> List[PluralString]:
+    def sorted_plurals(self):
         """Return a sorted list of plurals stored in this model
 
         Returns:
@@ -157,7 +156,7 @@ class Resources:
         """
         return sorted(self._plurals.values(), key=attrgetter('name'))
 
-    def count(self) -> int:
+    def count(self):
         """Return a number of all models stored in this model.
 
         Returns:
@@ -165,7 +164,7 @@ class Resources:
         """
         return len(self._strings) + len(self._arrays) + len(self._plurals)
 
-    def item_count(self) -> int:
+    def item_count(self):
         """Return a number of all translatable items stored in this model.
 
         The translatable items are these XML tags:
@@ -183,28 +182,28 @@ class Resources:
         plural_item_count = sum([len(it) for it in self._plurals.values()])
         return len(self._strings) + array_item_count + plural_item_count
 
-    def get_string_text(self, name: str):
+    def get_string_text(self, name):
         """Return text of a string with the specified name."""
         return self._strings[name].text if name in self._strings else ''
 
-    def get_array_text(self, name: str, index):
+    def get_array_text(self, name, index):
         if name not in self._arrays:
             return ''
         return self._arrays[name].sorted_items[index].text
 
-    def get_plural_text(self, name: str, quantity: str):
+    def get_plural_text(self, name, quantity):
         if name not in self._plurals:
             return ''
         plural = self._plurals[name]
         return plural[quantity].text if quantity in plural else ''
 
-    def add_string(self, name: str, text: str, comment: str):
+    def add_string(self, name, text, comment):
         self._strings[name] = String(name, text, comment)
 
-    def add_array(self, string_array: StringArray) -> None:
+    def add_array(self, string_array):
         self._arrays[string_array.name] = string_array
 
-    def add_plural(self, plural: PluralString) -> None:
+    def add_plural(self, plural):
         self._plurals[plural.name] = plural
 
 
@@ -218,7 +217,7 @@ class ResourceContainer:
     def __init__(self):
         self._resources_by_language = {}
 
-    def __getitem__(self, language) -> Resources:
+    def __getitem__(self, language):
         return self._resources_by_language[language]
 
     def __setitem__(self, language, resources):
@@ -230,7 +229,7 @@ class ResourceContainer:
     def __len__(self):
         return len(self._resources_by_language)
 
-    def languages(self) -> List[str]:
+    def languages(self):
         """Return a sorted list of languages stored in this model.
 
         Returns:

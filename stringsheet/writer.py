@@ -3,8 +3,6 @@ import os
 
 from lxml import etree
 
-from .model import Resources
-
 
 def _indent(element, indent_char='\t', level=0):
     indent_text = '\n' + level * indent_char
@@ -21,7 +19,7 @@ def _indent(element, indent_char='\t', level=0):
         element.tail = indent_text
 
 
-def builds_strings_tree(resources: Resources):
+def builds_strings_tree(resources):
     root = etree.Element('resources')
 
     for string in resources.sorted_strings:
@@ -46,7 +44,7 @@ def builds_strings_tree(resources: Resources):
     return etree.ElementTree(root)
 
 
-def get_strings_text(resources: Resources):
+def get_strings_text(resources):
     tree = builds_strings_tree(resources)
     return etree.tostring(tree,
                           pretty_print=True,

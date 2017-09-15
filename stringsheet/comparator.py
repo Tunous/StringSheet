@@ -86,7 +86,7 @@ def compare_strings(a, b):
     return _compare_alphabetically(a, b)
 
 
-def quantity_order(quantity: str):
+def quantity_order(quantity):
     return constants.QUANTITIES.index(quantity)
 
 
