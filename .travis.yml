@@ -1,0 +1,22 @@
+dist: trusty
+sudo: false
+language: python
+python:
+  - '2.7'
+  - '3.6'
+
+install:
+ - pip install -r requirements.txt
+ - python setup.py install
+
+script:
+ - stringsheet --version
+ - pytest
+
+deploy:
+  provider: pypi
+  user: 'Tunous'
+  password:
+    secure: nKovhdK+Dqs7iCX7A13BcAB3eRCdOsku0PeKGv+DBSWnthKjflun3gTQOwaGWF0qy5qmGMqoPa3bmdnlYsEiy3u83HvVoWbYtw9nQNSlI0JY4y3D5iCvGNCgDrZK7AFpVFaETJ0EVXaEOTankSNBC1f9EhdDHd7HE9Gb30gwaMO23JoPtM6y2JUpDw255LBSzY5DBb+JRycMJDgstiQLv2h5zhaCSHC8BVomfI8Ybj5dQdJioWIS0AXAFCputXuJ2DMXkmgW1BYOWoDMDl5qyMnfOGPol1w1qbkpP+dfHAt7/8j3t1OOGcXXK/IhMMMPYT73gsdYTuLJa4meUyS4Hxx3ou7UaHkD07EOuAvEN9+6Dm1ijQRewvVZ7E/yFZAoh/sg8Y1ISE/aV/qNgVsadLmnwuABiKvxGBrtq95V8WJ10Ruxr/pGOQ6EcwDkbX9NIMxLuIrnjgellxk64idobHMZVG24TV06PTMRasaBAXMIVwnLdh5LPrLphxGM2x4Cd1bsGU1gdoVE4Rk0o2Ry1ucULPFHP0WWlZXPzQD8BtWsUhVfaO7YDafzFJx/gMfhQy4JzutcT1jV5XQ2vMzRnCSFNVmsUsNsk+cJnySeGF7PDqjethAIjCEEcA49dNLJBNXT7vAAGizMnBupr5jumkkzh/UUJVapntWckLnIpUQ=
+  on:
+    tags: true
