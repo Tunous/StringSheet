@@ -18,6 +18,10 @@ def create(project_name, source_dir='.', multi_sheet=False):
     resources = _parse_resources(source_dir)
     spreadsheet_id = _create_spreadsheet(service, project_name, multi_sheet,
                                          resources)
+
+    spreadsheet_link = create_link(spreadsheet_id)
+    print('Link:', spreadsheet_link)
+
     _upload(service, spreadsheet_id, resources)
     _create_formatting_rules(service, spreadsheet_id, multi_sheet, resources)
     print()
@@ -62,6 +66,11 @@ def download(spreadsheet_id, target_dir='.'):
     _write_strings(strings_by_language, target_dir)
     print()
     print('Success')
+
+
+def create_link(spreadsheet_id):
+    return 'https://docs.google.com/spreadsheets/d/{}/edit'.format(
+        spreadsheet_id)
 
 
 def _authenticate():
