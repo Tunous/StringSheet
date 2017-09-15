@@ -9,37 +9,38 @@ class ResourcesParseTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.strings = parse_resources('test-resources/res')
+        self.resources = parse_resources('test-resources/res')
         self.languages = ['pl', 'de', 'zh-rCN', 'zh-rTW']
 
     def test_finds_all_languages(self):
-        self.assertIn('default', self.strings)
+        self.assertIn('default', self.resources)
         for language in self.languages:
-            self.assertIn(language, self.strings)
+            self.assertIn(language, self.resources)
 
     def test_number_of_languages_is_correct(self):
-        self.assertEqual(len(self.strings), 5)
+        self.assertEqual(len(self.resources), 5)
 
     def test_doesnt_find_invalid_languages(self):
-        self.assertNotIn('night', self.strings)
-        self.assertNotIn('v21', self.strings)
-        self.assertNotIn('w820dp', self.strings)
+        self.assertNotIn('night', self.resources)
+        self.assertNotIn('v21', self.resources)
+        self.assertNotIn('w820dp', self.resources)
 
     def test_finds_all_strings(self):
-        self.assertIn('string', self.strings['default'])
+        self.assertIn('string', self.resources['default'])
         for language in self.languages:
-            self.assertIn('string', self.strings[language])
+            self.assertIn('string', self.resources[language])
 
     def test_translations_are_correct(self):
-        self.assertEqual(self.strings['default']['string'], 'String')
+        self.assertEqual('String',
+                         self.resources['default']._strings['string'].text)
         for language in self.languages:
-            self.assertEqual(self.strings[language]['string'],
-                             'String (' + language + ')')
+            self.assertEqual('String (' + language + ')',
+                             self.resources[language]._strings['string'].text)
 
     def test_non_existing_translations_are_skipped(self):
-        self.assertIn('partly_added', self.strings['default'])
-        self.assertIn('partly_added', self.strings['de'])
-        self.assertNotIn('partly_added', self.strings['pl'])
+        self.assertIn('partly_added', self.resources['default'])
+        self.assertIn('partly_added', self.resources['de'])
+        self.assertNotIn('partly_added', self.resources['pl'])
 
 
 if __name__ == '__main__':

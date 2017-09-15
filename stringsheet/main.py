@@ -3,32 +3,32 @@ from . import parser
 from . import writer
 
 
-def _parse_strings(source_dir):
+def _parse_resources(source_dir):
     print(':: Parsing strings...')
-    strings = parser.parse_resources(source_dir)
+    resources = parser.parse_resources(source_dir)
 
-    num_languages = len(strings)
-    num_strings = len(strings['default'])
+    num_languages = len(resources.languages())
+    num_strings = resources['default'].count()
     print('Found %d languages and %d strings' % (num_languages, num_strings))
 
-    return strings
+    return resources
 
 
-def _upload(service, spreadsheet_id, strings):
+def _upload(service, spreadsheet_id, resources):
     print(':: Uploading strings...')
 
     data = []
     requests = []
 
     free_sheet_id, sheet_id_by_title = _get_sheets(service, spreadsheet_id)
-    languages = parser.get_languages(strings)
+    languages = resources.languages()
 
     num_valid = sum(1 for language in sheet_id_by_title.keys()
                     if parser.is_language_valid(language))
     has_template = 'Template' in sheet_id_by_title
 
     if num_valid == 0 and not has_template:
-        values = parser.create_spreadsheet_values(strings)
+        values = parser.create_spreadsheet_values(resources)
         data.append({
             'range': 'A:Z',
             'values': values
@@ -36,7 +36,7 @@ def _upload(service, spreadsheet_id, strings):
     else:
         languages.insert(0, 'Template')
         for language in languages:
-            values = parser.create_language_sheet_values(strings, language)
+            values = parser.create_language_sheet_values(resources, language)
             data.append(api.create_value_range(language, values))
 
             if language not in sheet_id_by_title:
@@ -98,14 +98,14 @@ def _get_sheet_ranges(service, spreadsheet_id):
     return ranges if ranges else ['A:Z']
 
 
-def _create_spreadsheet(service, project_name, multi_sheet, strings):
+def _create_spreadsheet(service, project_name, multi_sheet, resources):
     print(':: Creating spreadsheet...')
     spreadsheet_name = project_name + ' (Translations)'
     spreadsheet_body = api.create_spreadsheet_body(
         spreadsheet_name,
         multi_sheet,
-        parser.get_languages(strings),
-        len(strings['default']) + 1)
+        resources.languages(),
+        resources['default'].item_count() + 1)
     response = api.create_spreadsheet(service, spreadsheet_body)
 
     spreadsheet_id = response['spreadsheetId']
@@ -152,12 +152,12 @@ def _download_strings(service, spreadsheet_id):
     return strings_by_language
 
 
-def _create_formatting_rules(service, spreadsheet_id, multi_sheet, strings):
+def _create_formatting_rules(service, spreadsheet_id, multi_sheet, resources):
     print(':: Creating formatting rules...')
-    languages = parser.get_languages(strings)
+    languages = resources.languages()
     num_languages = len(languages)
     num_columns = num_languages + 3
-    num_rows = len(strings['default']) + 1
+    num_rows = resources['default'].item_count() + 1
     num_sheets = num_languages + 2 if multi_sheet else 1
 
     start_index = 1 if multi_sheet else 0
@@ -184,11 +184,11 @@ def create(project_name, source_dir='.', multi_sheet=False):
             (in the same file)
     """
     service = _authenticate()
-    strings = _parse_strings(source_dir)
+    resources = _parse_resources(source_dir)
     spreadsheet_id = _create_spreadsheet(service, project_name, multi_sheet,
-                                         strings)
-    _upload(service, spreadsheet_id, strings)
-    _create_formatting_rules(service, spreadsheet_id, multi_sheet, strings)
+                                         resources)
+    _upload(service, spreadsheet_id, resources)
+    _create_formatting_rules(service, spreadsheet_id, multi_sheet, resources)
     print()
     print('Success')
 
@@ -207,8 +207,8 @@ def upload(spreadsheet_id, source_dir='.'):
             project.
     """
     service = _authenticate()
-    strings = _parse_strings(source_dir)
-    _upload(service, spreadsheet_id, strings)
+    resources = _parse_resources(source_dir)
+    _upload(service, spreadsheet_id, resources)
     print()
     print('Success')
 

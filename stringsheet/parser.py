@@ -2,56 +2,12 @@ import os
 
 from lxml import etree
 
-from . import comparator
 from . import constants
+from . import model
 
 
-def _is_translatable(element):
-    return element.get('translatable', 'true').lower() == 'true'
-
-
-def _is_root_valid(element):
-    return element.tag == 'resources' and _is_translatable(element)
-
-
-def _is_string_valid(element):
-    return (element.tag == 'string' and
-            'name' in element.attrib and
-            _is_translatable(element) and
-            not element.text.startswith(('@', '?')))
-
-
-def _is_plural_valid(element):
-    return (element.tag == 'plurals' and
-            'name' in element.attrib and
-            _is_translatable(element))
-
-
-def _is_plural_item_valid(element):
-    return (element.tag == 'item' and
-            'quantity' in element.attrib)
-
-
-def _is_array_valid(element):
-    return (element.tag == 'string-array' and
-            'name' in element.attrib and
-            _is_translatable(element))
-
-
-def _map_plurals(element):
-    return {
-        it.get('quantity'): it.text
-        for it in element
-        if _is_plural_item_valid(it)
-    }
-
-
-def _map_array(element):
-    return [it.text for it in element if it.tag == 'item']
-
-
-def parse_file(source):
-    """Parse the specified source and extract all found strings as a ``dict``.
+def parse_file(source, resources):
+    """Parse the ``source`` file and extract all found strings to ``resources``.
 
     Args:
         source: The source object to parse. Can be any of the following:
@@ -61,40 +17,88 @@ def parse_file(source):
             - a file-like object
             - a URL using the HTTP or FTP protocol
 
-    Returns:
-        dict: A dictionary with all the parsed strings mapped as 'id': 'text'.
+        resources: The resources model for storing the parsed strings.
     """
     tree = etree.parse(source)
     root = tree.getroot()
 
-    if not _is_root_valid(root):
-        return {}
-    strings = {}
+    if not model.Resources.is_valid(root):
+        return
+
+    latest_comment = ''
     for element in root:
-        if _is_string_valid(element):
-            strings[element.get('name')] = element.text
-        elif _is_array_valid(element):
-            array = _map_array(element)
-            name = element.get('name')
-            for index, value in enumerate(array):
-                string_id = '%s[%d]' % (name, index)
-                strings[string_id] = value
-        elif _is_plural_valid(element):
-            plurals = _map_plurals(element)
+        if element.tag is etree.Comment:
+            if element.tail.count('\n') <= 1:
+                latest_comment = element.text.strip()
+            continue
+
+        name = element.get('name', None)
+        if not name:
+            latest_comment = ''
+            continue
+
+        if model.String.is_valid(element):
+            resources.add_string(name, element.text, latest_comment)
+
+        elif model.StringArray.is_valid(element):
+            resources.add_array(_parse_array(element, name, latest_comment))
+
+        elif model.PluralString.is_valid(element):
+            plural = _parse_plural(element, name, latest_comment)
+            resources.add_plural(plural)
+
+        latest_comment = ''
+
+
+def _parse_array(element, name: str, comment: str) -> model.StringArray:
+    string_array = model.StringArray(name, comment)
+    latest_item_comment = comment
+    for item in element:
+        if item.tag is etree.Comment:
+            latest_item_comment = _parse_comment(item, comment)
+            continue
+
+        if item.tag == 'item':
+            string_array.add_item(item.text, latest_item_comment)
+
+        latest_item_comment = comment
+    return string_array
+
+
+def _parse_plural(element, name: str, comment: str) -> model.PluralString:
+    plural = model.PluralString(name, comment)
+    latest_item_comment = comment
+    for item in element:
+        if item.tag is etree.Comment:
+            latest_item_comment = _parse_comment(item, comment)
+            continue
+
+        if item.tag == 'item' and 'quantity' in item.attrib:
+            quantity = item.get('quantity')
+            plural[quantity] = model.PluralItem(
+                quantity, item.text, latest_item_comment)
+
+        latest_item_comment = comment
+
+    for quantity in constants.QUANTITIES:
+        if quantity not in plural:
             # TODO: What to do if plural has no 'other' quantity?
-            default_value = plurals.get('other', '')
-            name = element.get('name')
-            for quantity in constants.QUANTITIES:
-                string_id = '%s{%s}' % (name, quantity)
-                strings[string_id] = plurals.get(quantity, default_value)
-    return strings
+            other = plural['other']
+            plural[quantity] = model.PluralItem(
+                quantity, other.text, comment)
+
+    return plural
+
+
+def _parse_comment(item, latest_comment):
+    return item.text.strip() if item.tail.count('\n') <= 1 else latest_comment
 
 
 def _is_file_valid(file):
     return file.endswith('.xml') and file != 'donottranslate.xml'
 
 
-def parse_directory(directory):
+def parse_directory(directory) -> model.Resources:
     """Parse XML files located under the specified directory as strings dict.
 
     The directory argument usually should point to one of the 'values-lang'
@@ -104,16 +108,16 @@ def parse_directory(directory):
         directory (str): The path to directory with XML files to parse.
 
     Returns:
-        dict: A dictionary with all the parsed strings mapped as 'id': 'text'.
+        model.Resources: A model with parsed resources.
     """
     files = os.listdir(directory)
     xml_files = [file for file in files if _is_file_valid(file)]
 
-    strings = {}
+    resources = model.Resources()
     for file in xml_files:
         file_name = directory + '/' + file
-        strings.update(parse_file(file_name))
-    return strings
+        parse_file(file_name, resources)
+    return resources
 
 
 def is_language_valid(language):
@@ -133,7 +137,7 @@ def is_language_valid(language):
     return len(language) == 2
 
 
-def parse_resources(directory):
+def parse_resources(directory) -> model.ResourceContainer:
     """Parse all string resources located under the specified `directory``.
 
     This function assumes that the passed ``directory`` corresponds to the "res"
@@ -147,7 +151,7 @@ def parse_resources(directory):
     Returns:
         dict: A dictionary of strings mapped by language and then by string id.
     """
-    strings = {}
+    resources = model.ResourceContainer()
     for child_dir in os.listdir(directory):
         if not child_dir.startswith('values'):
             continue
@@ -157,58 +161,65 @@ def parse_resources(directory):
         else:
             _, _, language = child_dir.partition('-')
 
-        if not is_language_valid(language):
-            continue
-
-        language_strings = parse_directory(directory + '/' + child_dir)
-        if language_strings:
-            strings[language] = language_strings
-
-    return strings
+        if is_language_valid(language):
+            resources[language] = parse_directory(directory + '/' + child_dir)
+    return resources
 
 
-def get_languages(strings):
-    return sorted([it for it in strings.keys() if it != 'default'])
-
-
-def create_language_sheet_values(strings, language):
+def create_language_sheet_values(resources, language):
     is_template = language == 'Template'
     title = language if not is_template else 'language-id'
     result = [['id', 'comment', 'default', title]]
 
-    default_strings = strings['default']
+    default_strings = resources['default']
     for string_id in sorted(default_strings):
         row = [string_id, '', default_strings[string_id]]
         if not is_template:
-            row.append(strings[language].get(string_id, ''))
+            row.append(resources[language].get(string_id, ''))
         result.append(row)
 
     return result
 
 
-def create_spreadsheet_values(strings):
-    """Create strings array that can be used to execute API calls.
+def create_spreadsheet_values(resources: model.ResourceContainer) -> list:
+    """Create rows and columns list that can be used to execute API calls.
 
     Args:
-        strings (dict): A dictionary with strings parsed from Android XML
-            strings files.
+        resources (model.ResourceContainer): A model with strings parsed
+            from Android XML strings files.
 
     Returns:
         list: List of spreadsheet rows and columns.
     """
-    languages = get_languages(strings)
-    column_names = ['id', 'comment', 'default'] + languages
-    result = [column_names]
+    languages = resources.languages()
+    rows = [['id', 'comment', 'default'] + languages]
 
-    default_strings = strings['default']
-    sorted_strings = sorted(default_strings, key=comparator.string_order)
-    for string_id in sorted_strings:
-        row = [string_id, '', default_strings[string_id]]
+    default_strings = resources['default']
+    for string in default_strings.sorted_strings:
+        row = [string.name, string.comment, string.text]
         for language in languages:
-            row.append(strings[language].get(string_id, ''))
-        result.append(row)
+            row.append(resources[language].get_string_text(string.name))
+        rows.append(row)
 
-    return result
+    for array in default_strings.sorted_arrays:
+        for index, item in enumerate(array):
+            item_name = '{0}[{1}]'.format(array.name, index)
+            row = [item_name, item.comment, item.text]
+            for language in languages:
+                row.append(resources[language].get_array_text(
+                    array.name, index))
+            rows.append(row)
+
+    for plural in default_strings.sorted_plurals:
+        for item in plural.sorted_items:
+            item_name = '{0}{{{1}}}'.format(plural.name, item.quantity)
+            row = [item_name, item.comment, item.text]
+            for language in languages:
+                row.append(resources[language].get_plural_text(
+                    plural.name, item.quantity))
+            rows.append(row)
+
+    return rows
 
 
 def parse_spreadsheet_values(values):

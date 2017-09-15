@@ -9,10 +9,10 @@ class ParseDirectoryTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.strings = parse_directory('test-resources/strings')
+        self.resources = parse_directory('test-resources/strings')
 
     def test_finds_all_strings(self):
-        self.assertEqual(len(self.strings), 2,
+        self.assertEqual(2, self.resources.count(),
                          'Found incorrect number of strings')
 
 
@@ -30,11 +30,11 @@ class ParseDirectoryWithNonTranslatableFileTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.strings = parse_directory(
+        self.resources = parse_directory(
             'test-resources/strings_non_translatable_file')
 
     def test_doesnt_find_string_in_non_translatable_file(self):
-        self.assertNotIn('non_translatable', self.strings)
+        self.assertNotIn('non_translatable', self.resources)
 
 
 if __name__ == '__main__':

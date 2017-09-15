@@ -1,17 +1,40 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
+	<!-- String with comment -->
 	<string name="string">String</string>
+	<string name="string_2">String 2</string>
+	<!-- Parent comment -->
+	<plurals name="plural">
+		<item quantity="one">One</item>
+		<!-- Comment -->
+		<item quantity="other">Other</item>
+	</plurals>
+
+	<!-- Array comment -->
+	<string-array name="array_comment">
+		<item>Some item</item>
+		<item>More items</item>
+		<!-- Comment -->
+		<item>More</item>
+	</string-array>
 	<plurals name="plurals">
 		<item quantity="one">One</item>
+		<!-- Item comment-->
 		<item quantity="zero">Zero</item>
 		<item quantity="two">Two</item>
 		<item quantity="other">Other</item>
 		<item quantity="few">Few</item>
 		<item quantity="many">Many</item>
 	</plurals>
+
+	<!-- Section comment -->
+
 	<string-array name="array">
+		<!-- Item comment -->
 		<item>First</item>
 		<item>Second</item>
 	</string-array>
+
 	<string name="partly_added">Partly added</string>
+	<string name="a_string">A string</string>
 </resources>

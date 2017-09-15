@@ -86,8 +86,8 @@ def compare_strings(a, b):
     return _compare_alphabetically(a, b)
 
 
-def quantity_order(a):
-    return constants.QUANTITIES.index(a[0])
+def quantity_order(quantity: str):
+    return constants.QUANTITIES.index(quantity)
 
 
 string_order = functools.cmp_to_key(compare_strings)

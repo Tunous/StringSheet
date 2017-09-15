@@ -1,10 +1,9 @@
 import errno
 import os
-import re
 
 from lxml import etree
 
-from . import comparator
+from .model import Resources
 
 
 def _indent(element, indent_char='\t', level=0):
@@ -22,55 +21,33 @@ def _indent(element, indent_char='\t', level=0):
         element.tail = indent_text
 
 
-def builds_strings_tree(strings):
+def builds_strings_tree(resources: Resources):
     root = etree.Element('resources')
-    array_pattern = re.compile('^(\w+)\[(\d+)\]')
-    plural_pattern = re.compile('(\w+){(zero|one|two|few|many|other)\}')
-    plurals = {}
-    arrays = {}
-    for name, value in sorted(strings.items()):
-        if not value:
+
+    for string in resources.sorted_strings:
+        if not string.text:
             continue
 
-        match = array_pattern.match(name)
-        if match:
-            array_name = match.group(1)
-            index = int(match.group(2))
-            array = arrays.get(array_name, [])
-            array.insert(index, value)
-            arrays[array_name] = array
-            continue
+        xml_string = etree.SubElement(root, 'string', name=string.name)
+        xml_string.text = string.text
 
-        match = plural_pattern.match(name)
-        if match:
-            plural_name = match.group(1)
-            quantity = match.group(2)
-            plural = plurals.get(plural_name, {})
-            plural[quantity] = value
-            plurals[plural_name] = plural
-            continue
+    for array in resources.sorted_arrays:
+        string_array = etree.SubElement(root, 'string-array', name=array.name)
+        for item in array:
+            etree.SubElement(string_array, 'item').text = item.text
 
-        etree.SubElement(root, 'string', name=name).text = value
-
-    # Build string arrays
-    for name, item_array in sorted(arrays.items()):
-        string_array = etree.SubElement(root, 'string-array', name=name)
-        for value in item_array:
-            etree.SubElement(string_array, 'item').text = value
-
-    # Build plurals
-    for name, items in sorted(plurals.items()):
-        plural = etree.SubElement(root, 'plurals', name=name)
-        quantities = sorted(items.items(), key=comparator.quantity_order)
-        for quantity, value in quantities:
-            etree.SubElement(plural, 'item', quantity=quantity).text = value
+    for plural in resources.sorted_plurals:
+        plurals = etree.SubElement(root, 'plurals', name=plural.name)
+        for item in plural.sorted_items:
+            xml_item = etree.SubElement(plurals, 'item', quantity=item.quantity)
+            xml_item.text = item.text
 
     _indent(root)
     return etree.ElementTree(root)
 
 
-def get_strings_text(strings):
-    tree = builds_strings_tree(strings)
+def get_strings_text(resources: Resources):
+    tree = builds_strings_tree(resources)
     return etree.tostring(tree,
                           pretty_print=True,
                           xml_declaration=True,
@@ -78,8 +55,8 @@ def get_strings_text(strings):
                           with_tail=False)
 
 
-def write_strings_file(directory, strings):
-    tree = builds_strings_tree(strings)
+def write_strings_file(directory, resources):
+    tree = builds_strings_tree(resources)
     tree.write(directory + '/strings.xml',
                pretty_print=True,
                xml_declaration=True,
@@ -97,7 +74,7 @@ def _make_dir(path):
 
 def write_strings_to_directory(strings_by_language, target_dir):
     _make_dir(target_dir)
-    for language, strings in strings_by_language.items():
+    for language, resources in strings_by_language.sorted_items():
         if not target_dir.endswith('/'):
             target_dir += '/'
         if language == 'default':
@@ -108,4 +85,4 @@ def write_strings_to_directory(strings_by_language, target_dir):
         values_dir = target_dir + 'values-' + language
         _make_dir(values_dir)
 
-        write_strings_file(values_dir, strings)
+        write_strings_file(values_dir, resources)

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+	<!-- String comment -->
+	<string name="string">With comment</string>
+	<string name="string_2">Without comment</string>
+	<!-- Non-string comment -->
+
+	<string name="string_3">After blank line</string>
+
+	<string-array name="array">
+		<!-- Array item comment -->
+		<item>With comment</item>
+		<item>Without comment</item>
+		<!-- Non-string comment -->
+
+		<item>After blank line</item>
+	</string-array>
+
+	<!-- Array comment -->
+	<string-array name="array_2">
+		<item>Without comment</item>
+		<!-- Own comment -->
+		<item>With own comment</item>
+		<!-- Non-item comment -->
+
+		<item>After blank line</item>
+	</string-array>
+
+	<plurals name="plural">
+		<!-- Comment -->
+		<item quantity="one">One</item>
+		<item quantity="two">Two</item>
+		<!-- Non-item comment -->
+
+		<item quantity="other">Other</item>
+	</plurals>
+
+	<!-- Plural comment -->
+	<plurals name="plural_2">
+		<!-- Comment -->
+		<item quantity="one">One</item>
+		<item quantity="two">Two</item>
+		<!-- Non-item comment -->
+
+		<item quantity="other">Other</item>
+	</plurals>
+</resources>
