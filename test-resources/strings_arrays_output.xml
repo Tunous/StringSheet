@@ -9,6 +9,5 @@
 		<item>First</item>
 		<item>Second</item>
 		<item>Third</item>
-		<item>@string/reference</item>
 	</string-array>
 </resources>

@@ -129,6 +129,7 @@ class ParseArraysTestCase(BaseParseTestCase):
     """Test that the parser handles string arrays."""
 
     test_file = 'test-resources/strings_arrays.xml'
+    output_file = 'test-resources/strings_arrays_output.xml'
 
     def test_finds_all_strings(self):
         self.assertEqual(0, len(self.resources._strings))

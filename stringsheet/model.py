@@ -8,6 +8,10 @@ def _is_translatable(element) -> bool:
     return element.get('translatable', 'true').lower() == 'true'
 
 
+def _is_reference(element) -> bool:
+    return element.text.startswith(('@', '?'))
+
+
 class String:
     """Model representing <string> tag in Android string resources."""
 
@@ -21,7 +25,7 @@ class String:
         return (element.tag == 'string' and
                 'name' in element.attrib and
                 _is_translatable(element) and
-                not element.text.startswith(('@', '?')))
+                not _is_reference(element))
 
 
 class StringArrayItem:
@@ -30,6 +34,10 @@ class StringArrayItem:
     def __init__(self, text: str, comment: str) -> None:
         self.text = text
         self.comment = comment
+
+    @staticmethod
+    def is_valid(element) -> bool:
+        return element.tag == 'item' and not _is_reference(element)
 
 
 class StringArray:
@@ -68,7 +76,8 @@ class PluralItem:
     @staticmethod
     def is_valid(element) -> bool:
         return (element.tag == 'item' and
-                'quantity' in element.attrib)
+                'quantity' in element.attrib and
+                not _is_reference(element))
 
 
 class PluralString:

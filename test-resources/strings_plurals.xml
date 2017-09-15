@@ -10,6 +10,7 @@
 	</plurals>
 	<plurals name="string_2">
 		<item quantity="one">One</item>
+		<item quantity="two">@string/reference</item>
 		<item quantity="other">Other</item>
 		<item quantity="zero">Zero</item>
 	</plurals>

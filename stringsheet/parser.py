@@ -44,8 +44,7 @@ def parse_file(source, resources):
             resources.add_array(_parse_array(element, name, latest_comment))
 
         elif model.PluralString.is_valid(element):
-            plural = _parse_plural(element, name, latest_comment)
-            resources.add_plural(plural)
+            resources.add_plural(_parse_plural(element, name, latest_comment))
 
         latest_comment = ''
 
@@ -58,7 +57,7 @@ def _parse_array(element, name: str, comment: str) -> model.StringArray:
             latest_item_comment = _parse_comment(item, comment)
             continue
 
-        if item.tag == 'item':
+        if model.StringArrayItem.is_valid(item):
             string_array.add_item(item.text, latest_item_comment)
 
         latest_item_comment = comment
@@ -73,7 +72,7 @@ def _parse_plural(element, name: str, comment: str) -> model.PluralString:
             latest_item_comment = _parse_comment(item, comment)
             continue
 
-        if item.tag == 'item' and 'quantity' in item.attrib:
+        if model.PluralItem.is_valid(item):
             quantity = item.get('quantity')
             plural[quantity] = model.PluralItem(
                 quantity, item.text, latest_item_comment)
