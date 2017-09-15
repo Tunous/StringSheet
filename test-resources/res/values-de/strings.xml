@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
 	<string name="string">String (de)</string>
+	<!-- Comment -->
 	<string name="partly_added">Partly added (de)</string>
 </resources>

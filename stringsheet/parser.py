@@ -5,6 +5,8 @@ from lxml import etree
 from . import constants
 from . import model
 
+_COLUMN_LANGUAGE_ID_TEMPLATE = 'language-id'
+
 
 def parse_file(source, resources):
     """Parse the ``source`` file and extract all found strings to ``resources``.
@@ -166,56 +168,61 @@ def parse_resources(directory) -> model.ResourceContainer:
 
 
 def create_language_sheet_values(resources, language):
-    is_template = language == 'Template'
-    title = language if not is_template else 'language-id'
-    result = [['id', 'comment', 'default', title]]
-
-    default_strings = resources['default']
-    for string_id in sorted(default_strings):
-        row = [string_id, '', default_strings[string_id]]
-        if not is_template:
-            row.append(resources[language].get(string_id, ''))
-        result.append(row)
-
-    return result
+    title = language if language != 'Template' else _COLUMN_LANGUAGE_ID_TEMPLATE
+    return create_spreadsheet_values(resources, [title])
 
 
-def create_spreadsheet_values(resources: model.ResourceContainer) -> list:
+def create_spreadsheet_values(resources, languages=None) -> list:
     """Create rows and columns list that can be used to execute API calls.
 
     Args:
         resources (model.ResourceContainer): A model with strings parsed
             from Android XML strings files.
+        languages (list): List of languages for which to create values. If not
+            specified values will be created for all parsed languages.
 
     Returns:
         list: List of spreadsheet rows and columns.
     """
-    languages = resources.languages()
+    if not languages:
+        languages = resources.languages()
     rows = [['id', 'comment', 'default'] + languages]
+
+    is_template = (len(languages) == 1
+                   and languages[0] == _COLUMN_LANGUAGE_ID_TEMPLATE)
 
     default_strings = resources['default']
     for string in default_strings.sorted_strings:
         row = [string.name, string.comment, string.text]
-        for language in languages:
-            row.append(resources[language].get_string_text(string.name))
+        if is_template:
+            row.append('')
+        else:
+            for language in languages:
+                row.append(resources[language].get_string_text(string.name))
         rows.append(row)
 
     for array in default_strings.sorted_arrays:
         for index, item in enumerate(array):
             item_name = '{0}[{1}]'.format(array.name, index)
             row = [item_name, item.comment, item.text]
-            for language in languages:
-                row.append(resources[language].get_array_text(
-                    array.name, index))
+            if is_template:
+                row.append('')
+            else:
+                for language in languages:
+                    row.append(resources[language].get_array_text(
+                        array.name, index))
             rows.append(row)
 
     for plural in default_strings.sorted_plurals:
         for item in plural.sorted_items:
             item_name = '{0}{{{1}}}'.format(plural.name, item.quantity)
             row = [item_name, item.comment, item.text]
-            for language in languages:
-                row.append(resources[language].get_plural_text(
-                    plural.name, item.quantity))
+            if is_template:
+                row.append('')
+            else:
+                for language in languages:
+                    row.append(resources[language].get_plural_text(
+                        plural.name, item.quantity))
             rows.append(row)
 
     return rows
