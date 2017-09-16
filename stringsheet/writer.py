@@ -30,11 +30,29 @@ def builds_strings_tree(resources):
         xml_string.text = string.text
 
     for array in resources.sorted_arrays:
+        has_text = False
+        for item in array:
+            if item.text:
+                has_text = True
+                break
+
+        if not has_text:
+            continue
+
         string_array = etree.SubElement(root, 'string-array', name=array.name)
         for item in array:
             etree.SubElement(string_array, 'item').text = item.text
 
     for plural in resources.sorted_plurals:
+        has_text = False
+        for item in plural.sorted_items:
+            if item.text:
+                has_text = True
+                break
+
+        if not has_text:
+            continue
+
         plurals = etree.SubElement(root, 'plurals', name=plural.name)
         for item in plural.sorted_items:
             xml_item = etree.SubElement(plurals, 'item', quantity=item.quantity)
