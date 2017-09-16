@@ -1,11 +1,15 @@
 import os
 
+from io import open
 from setuptools import setup
 
 about = {}
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'stringsheet', '__init__.py'), encoding='utf-8') as f:
-    exec(f.read(), about)
+    for line in f:
+        if line.startswith('__'):
+            (key, value) = line.split('=')
+            about[key.strip()] = value.strip().strip('\'')
 
 with open('README.rst', encoding='utf-8') as f:
     readme = f.read()
