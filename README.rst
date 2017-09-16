@@ -9,7 +9,7 @@ StringSheet
 Script for managing Android translations using Google Spreadsheets.
 
 Usage
------
+=====
 
 create
 ^^^^^^
@@ -41,6 +41,13 @@ Upload strings to existing spreadsheet.
    $ stringsheet upload spreadsheetId "~/src/myproject/app/src/main/res"
 
 Note: This command will override all strings in the spreadsheet. You should first download the spreadsheet using the previous command and commit them to your project before uploading
+
+Installation
+============
+
+.. code-block:: sh
+
+   $ pip install stringsheet
 
 Features
 ========
