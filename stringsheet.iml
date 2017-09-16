@@ -8,6 +8,8 @@
       <sourceFolder url="file://$MODULE_DIR$/stringsheet" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.cache" />
       <excludeFolder url="file://$MODULE_DIR$/.tox" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/stringsheet.egg-info" />
     </content>
     <orderEntry type="inheritedJdk" />
