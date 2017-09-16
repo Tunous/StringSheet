@@ -1,4 +1,5 @@
 from . import api
+from . import model
 from . import parser
 from . import writer
 
@@ -184,30 +185,26 @@ def _download_strings(service, spreadsheet_id):
     ranges = _get_sheet_ranges(service, spreadsheet_id)
     response = api.batch_get_values(service, spreadsheet_id, ranges)
 
-    strings_by_language = {}
+    resource_container = model.ResourceContainer()
     for value_range in response['valueRanges']:
         if 'values' not in value_range:
             continue
         values = value_range['values']
-        strings_by_language.update(parser.parse_spreadsheet_values(values))
+        parser.parse_spreadsheet_values(resource_container, values)
 
-    num_languages = len(strings_by_language) - 1
+    num_languages = len(resource_container) - 1
     print('Downloaded translations in %d languages:' % num_languages)
 
-    total_strings = len(strings_by_language['default'])
+    total_strings = resource_container['default'].count()
 
-    for language in strings_by_language:
-        if language == 'default':
-            continue
-
-        language_strings = strings_by_language[language]
-        num_strings = sum(1 for string_id in language_strings
-                          if language_strings[string_id])
+    for language in resource_container.languages():
+        language_strings = resource_container[language]
+        num_strings = language_strings.count()
         progress = (num_strings / total_strings) * 100
         print(' > %s: %d/%d (%d%%)'
               % (language, num_strings, total_strings, progress))
 
-    return strings_by_language
+    return resource_container
 
 
 def _write_strings(strings_by_language, target_dir):

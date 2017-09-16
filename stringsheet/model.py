@@ -1,6 +1,6 @@
 from operator import attrgetter
 
-from . import comparator
+from stringsheet import comparator
 
 
 def _is_translatable(element):
@@ -52,6 +52,9 @@ class StringArray:
 
     def __getitem__(self, index):
         return self._items[index]
+
+    def insert(self, index, item):
+        self._items.insert(index, item)
 
     def add_item(self, text, comment):
         item = StringArrayItem(text, comment)
@@ -197,14 +200,24 @@ class Resources:
         plural = self._plurals[name]
         return plural[quantity].text if quantity in plural else ''
 
-    def add_string(self, name, text, comment):
-        self._strings[name] = String(name, text, comment)
+    def add_string(self, string):
+        self._strings[string.name] = string
 
     def add_array(self, string_array):
         self._arrays[string_array.name] = string_array
 
     def add_plural(self, plural):
         self._plurals[plural.name] = plural
+
+    def add_array_item(self, name, text, comment, index):
+        if name not in self._arrays:
+            self._arrays[name] = StringArray(name, '')
+        self._arrays[name].insert(index, StringArrayItem(text, comment))
+
+    def add_plural_item(self, name, text, comment, quantity):
+        if name not in self._plurals:
+            self._plurals[name] = PluralString(name, '')
+        self._plurals[name][quantity] = PluralItem(quantity, text, comment)
 
 
 class ResourceContainer:
@@ -228,6 +241,18 @@ class ResourceContainer:
 
     def __len__(self):
         return len(self._resources_by_language)
+
+    def update(self, language, resources):
+        if language not in self._resources_by_language:
+            self._resources_by_language[language] = resources
+        else:
+            existing = self._resources_by_language[language]
+            for string in resources.sorted_strings:
+                existing.add_string(string)
+            for array in resources.sorted_arrays:
+                existing.add_array(array)
+            for plural in resources.sorted_plurals:
+                existing.add_plural(plural)
 
     def languages(self):
         """Return a sorted list of languages stored in this model.

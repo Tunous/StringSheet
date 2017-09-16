@@ -2,6 +2,7 @@ import os
 
 from lxml import etree
 
+from . import comparator
 from . import constants
 from . import model
 
@@ -40,7 +41,7 @@ def parse_file(source, resources):
             continue
 
         if model.String.is_valid(element):
-            resources.add_string(name, element.text, latest_comment)
+            resources.add_string(_parse_string(element, name, latest_comment))
 
         elif model.StringArray.is_valid(element):
             resources.add_array(_parse_array(element, name, latest_comment))
@@ -49,6 +50,10 @@ def parse_file(source, resources):
             resources.add_plural(_parse_plural(element, name, latest_comment))
 
         latest_comment = ''
+
+
+def _parse_string(element, name, comment):
+    return model.String(name, element.text, comment)
 
 
 def _parse_array(element, name, comment):
@@ -230,23 +235,20 @@ def create_spreadsheet_values(resources, languages=None):
     return rows
 
 
-def parse_spreadsheet_values(values):
+def parse_spreadsheet_values(resource_container, values):
     """Parse the result returned by Google Spreadsheets API call.
 
     Args:
+        resource_container (model.ResourceContainer): A model which will hold
+            the parsed resources.
         values (dict): The json values data returned by Google Spreadsheets API.
-
-    Returns:
-        dict: A dictionary of strings mapped by language and then by string id.
     """
     title_row = values[0]
-
-    strings_by_language = {}
 
     for lang_index in range(2, len(title_row)):
         language = title_row[lang_index]
 
-        language_strings = {}
+        resources = model.Resources()
         for row in values[1:]:
             column_count = len(row)
             if column_count < 3:
@@ -255,6 +257,7 @@ def parse_spreadsheet_values(values):
 
             translation = row[lang_index] if column_count > lang_index else ''
             string_id = row[0]
+            comment = row[1]
             default_text = row[2]
 
             if not string_id or not default_text:
@@ -266,8 +269,21 @@ def parse_spreadsheet_values(values):
                 # TODO: Check for more invalid characters
                 break
 
-            language_strings[string_id] = translation
+            array_match = comparator.ARRAY_ID_PATTERN.match(string_id)
+            if array_match:
+                name = array_match.group(1)
+                index = int(array_match.group(2))
+                resources.add_array_item(name, translation, comment, index)
+                continue
 
-        strings_by_language[language] = language_strings
+            plural_match = comparator.PLURAL_ID_PATTERN.match(string_id)
+            if plural_match:
+                name = plural_match.group(1)
+                quantity = plural_match.group(2)
+                resources.add_plural_item(name, translation, comment, quantity)
+                continue
 
-    return strings_by_language
+            resources.add_string(model.String(string_id, translation, comment))
+
+        resource_container.update(language, resources)
+

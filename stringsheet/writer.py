@@ -73,13 +73,8 @@ def _make_dir(path):
 
 def write_strings_to_directory(strings_by_language, target_dir):
     _make_dir(target_dir)
-    for language, resources in strings_by_language.sorted_items():
-        if language == 'default':
-            # Do not write strings for the default language. These are supposed
-            # to be written manually by developers and they also might contain
-            # comments which are not saved when using this script.
-            continue
+    for language in strings_by_language.languages():
         values_dir = os.path.join(target_dir, 'values-' + language)
         _make_dir(values_dir)
 
-        write_strings_file(values_dir, resources)
+        write_strings_file(values_dir, strings_by_language[language])
