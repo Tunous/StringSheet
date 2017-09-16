@@ -4,10 +4,10 @@ from setuptools import setup
 
 about = {}
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'stringsheet', '__init__.py')) as f:
+with open(os.path.join(here, 'stringsheet', '__init__.py'), encoding='utf-8') as f:
     exec(f.read(), about)
 
-with open('README.rst') as f:
+with open('README.rst', encoding='utf-8') as f:
     readme = f.read()
 
 setup(

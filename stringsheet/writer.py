@@ -55,7 +55,8 @@ def get_strings_text(resources):
 
 def write_strings_file(directory, resources):
     tree = builds_strings_tree(resources)
-    tree.write(directory + '/strings.xml',
+    file_path = os.path.join(directory, 'strings.xml')
+    tree.write(file_path,
                pretty_print=True,
                xml_declaration=True,
                encoding='utf-8',
@@ -73,14 +74,12 @@ def _make_dir(path):
 def write_strings_to_directory(strings_by_language, target_dir):
     _make_dir(target_dir)
     for language, resources in strings_by_language.sorted_items():
-        if not target_dir.endswith('/'):
-            target_dir += '/'
         if language == 'default':
             # Do not write strings for the default language. These are supposed
             # to be written manually by developers and they also might contain
             # comments which are not saved when using this script.
             continue
-        values_dir = target_dir + 'values-' + language
+        values_dir = os.path.join(target_dir, 'values-' + language)
         _make_dir(values_dir)
 
         write_strings_file(values_dir, resources)

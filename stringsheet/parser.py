@@ -116,8 +116,8 @@ def parse_directory(directory):
 
     resources = model.Resources()
     for file_name in xml_files:
-        file_name = directory + '/' + file_name
-        parse_file(file_name, resources)
+        file_path = os.path.join(directory, file_name)
+        parse_file(file_path, resources)
     return resources
 
 
@@ -154,17 +154,18 @@ def parse_resources(directory):
             then by string id.
     """
     resources = model.ResourceContainer()
-    for child_dir in os.listdir(directory):
-        if not child_dir.startswith('values'):
+    for child_name in os.listdir(directory):
+        if not child_name.startswith('values'):
             continue
 
-        if child_dir == 'values':
+        if child_name == 'values':
             language = 'default'
         else:
-            _, _, language = child_dir.partition('-')
+            _, _, language = child_name.partition('-')
 
         if is_language_valid(language):
-            resources[language] = parse_directory(directory + '/' + child_dir)
+            child_path = os.path.join(directory, child_name)
+            resources[language] = parse_directory(child_path)
     return resources
 
 
